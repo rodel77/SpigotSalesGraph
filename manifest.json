@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
-	"name": "SpigotSells",
-	"description": "test",
+	"name": "Spigot Sales Graph",
+	"description": "See graph/total gained and total sales in your premium spigot resources",
 	"version": "1.0.0",
 
 	"permissions": [
