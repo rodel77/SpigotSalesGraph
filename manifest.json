@@ -10,7 +10,7 @@
 	},
 
 	"permissions": [
-		"tabs", "https://www.spigotmc.org/"
+		"https://www.spigotmc.org/"
 	],
 
 	"content_scripts": [{
