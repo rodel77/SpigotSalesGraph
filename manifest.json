@@ -1,0 +1,15 @@
+{
+	"manifest_version": 2,
+	"name": "SpigotSells",
+	"description": "test",
+	"version": "1.0.0",
+
+	"permissions": [
+		"tabs", "https://www.spigotmc.org/"
+	],
+
+	"content_scripts": [{
+		"matches": ["https://www.spigotmc.org/*/buyers"],
+		"js": ["jquery-3.1.1.min.js", "Chart.js", "chartjs-plugin-zoom.js", "myscript.js"]
+	}]
+}
