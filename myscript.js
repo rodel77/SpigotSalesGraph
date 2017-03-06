@@ -1,17 +1,21 @@
 var mp = new Map();
 var total = 0;
 var totalSales = 0;
+var csv = "Date;User;Amount";
 
 var lm = new Map();
 
 for (var i = $(".memberList").children().length - 1; i >= 0; i--) {
 	var r = $(".memberList").children()[i].childNodes[3].getElementsByClassName("muted")[0];
 	var rr = $(".memberList").children()[i].childNodes[3].getElementsByClassName("muted")[1];
+    var username = $(".memberList").children()[i].childNodes[5].getElementsByClassName("username")[0].innerText
 	if(rr!=undefined){
 		flot = parseFloat(rr.innerHTML.replace(/[^\d.-]/g, ''));
 		total+=flot;
 		totalSales++;
 		console.log(flot);
+
+        csv += "#"+r.innerHTML.replace(",", "")+";"+username+";"+(flot.toString().lastIndexOf(".")==-1 ? flot+".0" : flot);
 
 		if(lm.get(r.innerHTML)==undefined){
 			lm.set(r.innerHTML, flot);
@@ -26,6 +30,8 @@ for (var i = $(".memberList").children().length - 1; i >= 0; i--) {
 		}
 	}
 }
+
+csv += "#Sales:"+totalSales+";TotalMoney:;"+(total.toString().substring(0, Math.min(total.toString().lastIndexOf('.')+3, total.toString().length)));
 
 /*document.getElementsByClassName("innerContent")[0].innerHtml = "test"*/
 
@@ -43,9 +49,14 @@ lm.forEach(function(value, key, lm){
 	moneyGainedArray[moneyGainedArray.length] = value;
 });
 
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
 $(".innerContent").before('<div style="width:'+$(".mainContent").width()+';height:1000;"><canvas id="myChart" width="100" height="400"></canvas></div>');
 $(".innerContent").before('<h2 style="font-size:30px;">Total gains: '+(total.toString().substring(0, Math.min(total.toString().lastIndexOf('.')+3, total.toString().length)))+'</h2>');
 $(".innerContent").before('<h2 style="font-size:30px;">Total sales: '+totalSales+'</h2>');
+$(".innerContent").before('<a style="font-size:20;" download="sales.csv" href="data:text/plain;charset=utf-8,'+encodeURIComponent(csv).replace(new RegExp("%23", 'g'), "%0A") +'"">Download .csv</a>');
 		var ctx = document.getElementById("myChart");
 		var myChart = new Chart(ctx, {
     type: 'line',
