@@ -56,7 +56,7 @@ function replaceAll(str, find, replace) {
 $(".innerContent").before('<div style="width:'+$(".mainContent").width()+';height:1000;"><canvas id="myChart" width="100" height="400"></canvas></div>');
 $(".innerContent").before('<h2 style="font-size:30px;">Total gains: '+(total.toString().substring(0, Math.min(total.toString().lastIndexOf('.')+3, total.toString().length)))+'</h2>');
 $(".innerContent").before('<h2 style="font-size:30px;">Total sales: '+totalSales+'</h2>');
-$(".innerContent").before('<a style="font-size:25s;" download="sales.csv" href="data:text/plain;charset=utf-8,'+encodeURIComponent(csv).replace(new RegExp("%23", 'g'), "%0A") +'"">Download .csv</a>');
+$(".innerContent").before('<a style="font-size:25px;" download="sales.csv" href="data:text/plain;charset=utf-8,'+encodeURIComponent(csv).replace(new RegExp("%23", 'g'), "%0A") +'"">Download .csv</a>');
 		var ctx = document.getElementById("myChart");
 		var myChart = new Chart(ctx, {
     type: 'line',
