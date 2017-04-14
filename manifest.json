@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Spigot Sales Graph",
 	"description": "See graph/total gained and total sales in your premium spigot resources",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"icons": {
 		"16": "icon16.png",
 		"48": "icon48.png",
@@ -15,6 +15,6 @@
 
 	"content_scripts": [{
 		"matches": ["https://www.spigotmc.org/*/buyers"],
-		"js": ["jquery-3.1.1.min.js", "Chart.js", "chartjs-plugin-zoom.js", "myscript.js"]
+		"js": ["Chart.js", "chartjs-plugin-zoom.js", "myscript.js"]
 	}]
 }
