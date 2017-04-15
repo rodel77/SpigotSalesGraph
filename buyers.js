@@ -13,6 +13,10 @@ var totalMoneyInUSD;
 var list = $(".memberList");
 var oldInner = list.innerHTML;
 var currentTab = "Graph";
+var totalSales = 0;
+
+var csv = "Date;User;Money";
+var csvFinal = "";
 
 class Buyer{
 	constructor(price, exchange, date){
@@ -36,17 +40,21 @@ for (var i = list.children.length - 1; i >= 0; i--) {
 	var extraTag = member.childNodes[3].getElementsByClassName("muted")[1];
 	var userID = onlyNumbers(member.childNodes[1].href.substring(member.childNodes[1].href.lastIndexOf(".")+1));
 	var date = member.childNodes[3].getElementsByClassName("muted")[0].title;
+	var username = member.childNodes[5].childNodes[1].childNodes[0].innerHTML;
+
 
 	//-1 = FREE
 	var price = -1;
 	var exchange = "NIL";
 	if(extraTag!=undefined){
+		totalSales++;
 		var p = extraTag.innerHTML;
 		var exchange = p.substring(p.length-4, p.length-1);
 		price = onlyNumbers(p);
 		exchanges[exchange]=setOrIncrement(exchanges[exchange], price)
 	}
 	buyers2.set(userID, new Buyer(price, exchange, date));
+	csv += "#"+date+";"+username+";"+(price==-1 ? "Free" : betterFloat(price)+" "+exchange);
 }
 
 //Save amount and money gained from date
@@ -55,7 +63,6 @@ function calculateGraph(){
 		if(buy.price>0){
 			var finalPrice = fx.convert(buy.price, {from: buy.exchange, to: getSelectedExchange()})
 			finalPrice = betterFloat(finalPrice);
-			console.log("From "+buy.price+" to "+finalPrice+" "+getSelectedExchange())
 			var onlyDay = buy.date.substring(0, buy.date.lastIndexOf('at')-1);
 			if(graphData[onlyDay]==undefined){
 				graphData[onlyDay]={amount: 1, money: finalPrice};
@@ -68,9 +75,9 @@ function calculateGraph(){
 }
 calculateGraph();
 
-//console.log(graphData)
 
 totalMoneyInUSD = calculateTotalMoney();
+csvFinal = "#Sales: "+totalSales+";Total Money"+getTotalConverted()+" "+getSelectedExchange();
 
 //Display new dashboard
 function displayDashboard(){
@@ -93,6 +100,8 @@ function displayDashboard(){
 			</fieldset>
 
 			<div id="graphContainer"></div>
+
+			<div id="csvbtn">${getDownloadCSV()}</div>
 		</div>
 
 		<div id="BList" style="display:none;">
@@ -172,7 +181,6 @@ function displayGraph(){
 	});
 }
 
-
 //Return data in graph format []
 function getGData(value){
 	var data = [];
@@ -182,12 +190,17 @@ function getGData(value){
 	return data;
 }
 
+function getDownloadCSV(){
+	return '<a style="font-size:25px;" download="sales.csv" href="data:text/plain;charset=utf-8,'+encodeURIComponent(csv+csvFinal).replace(new RegExp("%23", 'g'), "%0A") +'"">Download .csv</a>';
+}
 
 $("#exchangeTotal").addEventListener('change', () => {
 	graphData = {};
 	calculateGraph();
 	displayGraph();
 	$("#tct").innerHTML = getTotalConverted();
+	csvFinal = "#Sales: "+totalSales+";Total Money"+getTotalConverted()+" "+getSelectedExchange();
+	$("#csvbtn").innerHTML = getDownloadCSV();
 });
 
 $(".buyersTabGraph a").addEventListener('click', () => {
@@ -230,7 +243,7 @@ function getTotalMoney(){
 	for(ex in exchanges){
 		rs+= "<span style='font-size:20px;'>"+ex+": "+betterFloat(exchanges[ex])+"</span>\n";
 	}
-	rs+="<hr><br>";
+	rs+="<hr><br><span style='font-size:20px;'>Total Sales: "+totalSales+"</span><br><br>";
 	return rs;
 }
 
