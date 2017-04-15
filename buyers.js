@@ -4,9 +4,11 @@
 */
 
 //@see class Buyer
-var buyers = {};
+var buyers2 = new Map();
 //ex: USD=21 EUR=24 GBP=19
 var exchanges = {};
+//EXSchema: {"Jan 1, 1999": {amount: 10, money: 10}}
+var graphData = {};
 var totalMoneyInUSD;
 var list = $(".memberList");
 var oldInner = list.innerHTML;
@@ -25,6 +27,7 @@ class Buyer{
 fx.base = "USD";
 fx.rates = JSON.parse(httpGet("https://api.fixer.io/latest?base=USD")).rates;
 
+//Save all buyers
 for (var i = list.children.length - 1; i >= 0; i--) {
 	//Member tag (Date, Name, Profile, Img)
 	var member = list.children[i];
@@ -43,12 +46,29 @@ for (var i = list.children.length - 1; i >= 0; i--) {
 		price = onlyNumbers(p);
 		exchanges[exchange]=setOrIncrement(exchanges[exchange], price)
 	}
-	buyers[userID] = new Buyer(price, exchange, date);
-
-
-	console.log(price+" - "+fx.convert(price, {from: "EUR", to: "USD"}));
-
+	buyers2.set(userID, new Buyer(price, exchange, date));
 }
+
+//Save amount and money gained from date
+function calculateGraph(){
+	buyers2.forEach((buy, key, map) => {
+		if(buy.price>0){
+			var finalPrice = fx.convert(buy.price, {from: buy.exchange, to: getSelectedExchange()})
+			finalPrice = betterFloat(finalPrice);
+			console.log("From "+buy.price+" to "+finalPrice+" "+getSelectedExchange())
+			var onlyDay = buy.date.substring(0, buy.date.lastIndexOf('at')-1);
+			if(graphData[onlyDay]==undefined){
+				graphData[onlyDay]={amount: 1, money: finalPrice};
+			}else{
+				graphData[onlyDay].amount+=1;
+				graphData[onlyDay].money=parseInt(graphData[onlyDay].money)+parseInt(finalPrice);
+			}
+		}
+	});
+}
+calculateGraph();
+
+//console.log(graphData)
 
 totalMoneyInUSD = calculateTotalMoney();
 
@@ -71,16 +91,102 @@ function displayDashboard(){
 			</select>
 			<span id="tct">${getTotalConverted()}</span>
 			</fieldset>
+
+			<div id="graphContainer"></div>
 		</div>
 
 		<div id="BList" style="display:none;">
 			${oldInner}
 		</div>
 	`;
+
 }
 displayDashboard();
+displayGraph();
+
+function displayGraph(){
+	var hChart = Highcharts.chart('graphContainer', {
+		chart: {
+			renderTo: 'graphContainer',
+			zoomType: 'x'
+		},
+		title: {
+			text: 'You sale graph in '+getSelectedExchange()
+		},
+		subtitle: {
+			text: document.ontouchstart === undefined ?
+					'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+		},
+		xAxis: {
+			categories: Object.keys(graphData)
+		},
+		tooltip: {
+            shared: true,
+            crosshairs: true
+        },
+		yAxis: {
+	        title: {
+	            text: 'Amount'
+	        },
+			labels: {
+            	format: '{value:.2f}'
+        	}
+	    },
+		legend: {
+			enabled: false
+		},
+		plotOptions: {
+			area: {
+				fillColor: {
+					linearGradient: {
+						x1: 0,
+						y1: 0,
+						x2: 0,
+						y2: 1
+					},
+					stops: [
+						[0, Highcharts.getOptions().colors[0]],
+						[1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+					]
+				},
+				marker: {
+					radius: 2
+				},
+				lineWidth: 1,
+				states: {
+					hover: {
+						lineWidth: 1
+					}
+				},
+				threshold: null
+			}
+		},
+
+		series: [{
+			name: 'Sales',
+			data: getGData("amount")
+		},{
+			name: 'Money',
+			data: getGData("money")
+		}]
+	});
+}
+
+
+//Return data in graph format []
+function getGData(value){
+	var data = [];
+	for(gd in graphData){
+		data.push(parseFloat(graphData[gd][value]));
+	}
+	return data;
+}
+
 
 $("#exchangeTotal").addEventListener('change', () => {
+	graphData = {};
+	calculateGraph();
+	displayGraph();
 	$("#tct").innerHTML = getTotalConverted();
 });
 
@@ -125,7 +231,6 @@ function getTotalMoney(){
 		rs+= "<span style='font-size:20px;'>"+ex+": "+betterFloat(exchanges[ex])+"</span>\n";
 	}
 	rs+="<hr><br>";
-	console.log(rs);
 	return rs;
 }
 
@@ -136,7 +241,6 @@ function getTotalConverted(){
 function getExchangesInOptions(){
 	var totalOptions = ""
 	for(ex in fx.rates){
-		console.log(ex);
 		if(ex=="USD"){
 			totalOptions += '<option selected="selected" value="'+ex+'">'+ex+'</option>'
 		}else{
@@ -159,7 +263,7 @@ function calculateTotalMoney(){
 //EX: From 62.3845689307689 <> To 62.38
 function betterFloat(fl){
 	fl = fl.toString();
-	return fl.lastIndexOf('.')>-1 ? fl.substring(0, Math.min(fl.lastIndexOf('.')+3, fl.length)) : fl;
+	return parseFloat(fl.lastIndexOf('.')>-1 ? fl.substring(0, Math.min(fl.lastIndexOf('.')+3, fl.length)) : fl);
 }
 
 //Toggle betwen graphs and list

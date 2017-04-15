@@ -15,6 +15,6 @@
 
 	"content_scripts": [{
 		"matches": ["https://www.spigotmc.org/*/buyers"],
-		"js": ["money.js", "Chart.js", "chartjs-plugin-zoom.js", "buyers.js"]
+		"js": ["money.js", "highcharts.js", "exporting.js", "buyers.js"]
 	}]
 }
