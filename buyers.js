@@ -11,7 +11,7 @@ var exchanges = {};
 var graphData = {};
 var totalMoneyInUSD;
 var list = $(".memberList");
-var oldInner = list.innerHTML;
+var oldInner = $(".innerContent").innerHTML;
 var currentTab = "Graph";
 var totalSales = 0;
 
