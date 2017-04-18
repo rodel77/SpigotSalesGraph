@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Spigot Sales Graph",
 	"description": "See graph/total gained and total sales in your premium spigot resources",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"icons": {
 		"16": "icon16.png",
 		"48": "icon48.png",
