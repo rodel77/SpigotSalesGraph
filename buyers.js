@@ -50,11 +50,19 @@ for (var i = list.children.length - 1; i >= 0; i--) {
 		totalSales++;
 		var p = extraTag.innerHTML;
 		var exchange = p.substring(p.length-4, p.length-1);
+		if(!hasLetter(exchange)){
+			exchange = getSelectedExchange();
+			console.log("Fixed exchange for: %s", userID);
+		}
 		price = onlyNumbers(p);
 		exchanges[exchange]=setOrIncrement(exchanges[exchange], price)
 	}
 	buyers2.set(userID, new Buyer(price, exchange, date));
 	csv += "#"+date+";"+username+";"+(price==-1 ? "Free" : betterFloat(price)+" "+exchange);
+}
+
+function hasLetter(str){
+	return String(str).match(/[a-z]/i);
 }
 
 //Save amount and money gained from date

@@ -1,7 +1,2 @@
-Major Changes:
-+ Code 100% reworked using EcmaScript6 features (Not supported in old browsers)
-+ UI Reworked
-+ Graph system changed to "Highcarts", now you can zoom and save your graphs in png
-+ In spigot you can set the price in USD, EUR, GBP etc... and old versions of spigotgraphs do not detect it, now it takes all sales in any exchange and covert it to USD
-+ Added new button to change the exchange which total is displayed (Default: USD)
-+ Now Buyers tab is divided in two sub-tabs Graphs (Contains stats of all money gained) and List (See all players who buy the plugin)
+Fixes:
++ Fixed "getRate(...)" error (Thanks to @EnderPigs for fix it)
