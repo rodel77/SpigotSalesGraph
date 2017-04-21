@@ -1,2 +1,5 @@
+Added:
++ Added "Average Sales per day" and "Average Money per day" labels (Thanks to @EnderPigs for add it)
+
 Fixes:
 + Fixed "getRate(...)" error (Thanks to @EnderPigs for fix it)

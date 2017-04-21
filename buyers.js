@@ -101,6 +101,7 @@ function displayDashboard(){
 
 		<div style="padding:10px;" id="Graph">
 			<div style="white-space:pre-wrap;" id="totalMoney">${getTotalMoney()}</div>
+			<div style="white-space:pre-wrap;" id="totalMoney">${getAverages()}</div>
 			<fieldset style='font-size:25px;'>Total converted to <select style="font-size:20px;" id="exchangeTotal">
 				${getExchangesInOptions()}
 			</select>
@@ -252,6 +253,22 @@ function getTotalMoney(){
 		rs+= "<span style='font-size:20px;'>"+ex+": "+betterFloat(exchanges[ex])+"</span>\n";
 	}
 	rs+="<hr><br><span style='font-size:20px;'>Total Sales: "+totalSales+"</span><br><br>";
+	return rs;
+}
+
+//By @EnderPigs
+function getAverages() {
+	var keys = Object.keys(graphData);
+	var avgBuys = 0;
+	var avgMoney = 0;
+	for(var i = 0; i < keys.length; i++){
+		avgBuys += graphData[keys[i]].amount;
+		avgMoney += graphData[keys[i]].money;
+	}
+	avgBuys = avgBuys/keys.length;
+	avgMoney = avgMoney/keys.length;
+	rs="<span style='font-size:15px;'>		Average Sales per day: <b>" + betterFloat(avgBuys) + "</b></span><br>";
+	rs+="<span style='font-size:15px;'>		Average Money per day: <b>" + betterFloat(avgMoney) + "</b></span><br><br>";
 	return rs;
 }
 
