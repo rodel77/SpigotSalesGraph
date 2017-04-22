@@ -18,19 +18,6 @@ var totalSales = 0;
 var csv = "Date;User;Money";
 var csvFinal = "";
 
-class Buyer{
-	constructor(price, exchange, date){
-		this.price = price;
-		this.exchange = exchange;
-		this.date = date;
-	}
-}
-
-//Money.js API STUFF
-//Get all money exchanges an set to money.js
-fx.base = "USD";
-fx.rates = JSON.parse(httpGet("https://api.fixer.io/latest?base=USD")).rates;
-
 //Save all buyers
 for (var i = list.children.length - 1; i >= 0; i--) {
 	//Member tag (Date, Name, Profile, Img)
@@ -59,10 +46,6 @@ for (var i = list.children.length - 1; i >= 0; i--) {
 	}
 	buyers2.set(userID, new Buyer(price, exchange, date));
 	csv += "#"+date+";"+username+";"+(price==-1 ? "Free" : betterFloat(price)+" "+exchange);
-}
-
-function hasLetter(str){
-	return String(str).match(/[a-z]/i);
 }
 
 //Save amount and money gained from date
@@ -220,26 +203,6 @@ $(".buyersTabBList a").addEventListener('click', () => {
 	toggleDashboard('BList');
 });
 
-// Mini JQuery
-function $(selector){
-	return document.querySelector(selector);
-}
-
-//Remove any no-number char
-function onlyNumbers(string){
-	return string.replace(/[^\d.-]/g, '');
-}
-
-function setOrIncrement(v, number){
-	number = parseFloat(number);
-	if(v==undefined){
-		return number;
-	}else{
-		v = parseFloat(v);
-		return v+=number;
-	}
-}
-
 function getSelectedExchange(){
 	if($("#exchangeTotal")==undefined){
 		return "USD";
@@ -276,19 +239,6 @@ function getTotalConverted(){
 	return ": "+betterFloat(fx.convert(totalMoneyInUSD, {from: "USD", to: getSelectedExchange()}));
 }
 
-function getExchangesInOptions(){
-	var totalOptions = ""
-	for(ex in fx.rates){
-		if(ex=="USD"){
-			totalOptions += '<option selected="selected" value="'+ex+'">'+ex+'</option>'
-		}else{
-			totalOptions += '<option value="'+ex+'">'+ex+'</option>'
-		}
-	}
-
-	return totalOptions;
-}
-
 function calculateTotalMoney(){
 	var totalInUSD = 0;
 	for(ex in exchanges){
@@ -296,12 +246,6 @@ function calculateTotalMoney(){
 		totalInUSD += fx.convert(value, {from: ex, to: 'USD'});
 	}
 	return totalInUSD;
-}
-
-//EX: From 62.3845689307689 <> To 62.38
-function betterFloat(fl){
-	fl = fl.toString();
-	return parseFloat(fl.lastIndexOf('.')>-1 ? fl.substring(0, Math.min(fl.lastIndexOf('.')+3, fl.length)) : fl);
 }
 
 //Toggle betwen graphs and list
@@ -313,12 +257,4 @@ function toggleDashboard(tab){
 		$(".buyersTab"+currentTab).classList.toggle('active');
 		$("#"+currentTab).style.display = "";
 	}
-}
-
-//Do get request
-function httpGet(theUrl){
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
 }
