@@ -13,8 +13,14 @@
 		"https://www.spigotmc.org/"
 	],
 
-	"content_scripts": [{
-		"matches": ["https://www.spigotmc.org/*/buyers"],
-		"js": ["money.js", "highcharts.js", "exporting.js", "buyers.js"]
-	}]
+	"content_scripts": [
+		{
+			"matches": ["https://www.spigotmc.org/*/buyers"],
+			"js": ["money.js", "highcharts.js", "exporting.js", "helper.js", "buyers.js"]
+		},
+		{
+			"matches": ["https://www.spigotmc.org/*/authors/*"],
+			"js": ["money.js", "helper.js", "author.js"]
+		}
+	]
 }
