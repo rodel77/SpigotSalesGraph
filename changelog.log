@@ -1,5 +1,2 @@
 Added:
-+ Added "Average Sales per day" and "Average Money per day" labels (Thanks to @EnderPigs for add it)
-
-Fixes:
-+ Fixed "getRate(...)" error (Thanks to @EnderPigs for fix it)
++ Now when you enter in "Your resources" SpigotGrahps will display at end of page your total stats of all your plugins (Total Money Gained & Total Sales)
