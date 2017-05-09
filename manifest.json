@@ -10,7 +10,8 @@
 	},
 
 	"permissions": [
-		"https://www.spigotmc.org/"
+		"https://www.spigotmc.org/*",
+		"https://api.fixer.io/*"
 	],
 
 	"content_scripts": [
