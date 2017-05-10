@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Spigot Sales Graph",
 	"description": "See graph/total gained and total sales in your premium spigot resources",
-	"version": "1.2.1",
+	"version": "1.2.3",
 	"icons": {
 		"16": "icon16.png",
 		"48": "icon48.png",
@@ -10,18 +10,26 @@
 	},
 
 	"permissions": [
+		"tabs",
 		"https://www.spigotmc.org/*",
 		"https://api.fixer.io/*"
 	],
 
+	"applications": {
+		"gecko": {
+			"id": "spigotgraphs@rodel.com.mx"
+		}
+	},
+
 	"content_scripts": [
 		{
 			"matches": ["https://www.spigotmc.org/*/buyers"],
-			"js": ["money.js", "highcharts.js", "exporting.js", "helper.js", "buyers.js"]
+			"js": ["ajax.js", "highcharts.js", "exporting.js", "helper.js", "money.js", "buyers.js", "dashboard.js"],
+			"run_at": "document_idle"
 		},
 		{
 			"matches": ["https://www.spigotmc.org/*/authors/*"],
-			"js": ["money.js", "helper.js", "author.js"]
+			"js": ["ajax.js", "helper.js", "money.js", "author.js"]
 		}
 	]
 }

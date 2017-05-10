@@ -1,142 +1,100 @@
-//Check if user have access to see stats
-//This is for remove some delayed load in other author pages
-var userLogged = $(".accountUsername").innerHTML;
-var title = $(".titleBar").children[0].innerHTML;
-//Request Index (Request Count)
-var rqIndex = 0;
-var freeResources = 0;
-var resources = {};
+function onReady(convert, options, $, ajax){
+    var userLogged = $(".accountUsername").innerHTML;
+    var title = $(".titleBar h1").innerHTML;
+    var resources = document.querySelectorAll(".resourceListItem");
 
-///Stats var
-var resourcesData = [];
-var totalSales = 0;
+    console.debug("[Author] User logged", userLogged);
+    if(title.lastIndexOf(userLogged)>-1){
+        console.debug("[Author] Detecting owner profile")
 
-class Resource{
-    constructor(name, free){
-        this.name = name;
-        this.free = free;
-    }
-}
-console.log(fx.rates)
+        var resourcesD = [];
+        var loadIndex = 0;
 
-if(title.lastIndexOf(userLogged)>-1){
-    $('.mainContent .section').innerHTML+="<p style='font-size:20px;' id='loadingStats'>Loading 0/0</p>"
-    //Get all author resources from DOMElementID
-    var resourceList = $(".resourceList");
-    var rs = [];
-    for (var i = 0; i < resourceList.children.length; i++) {
-        var resourceID = resourceList.children[i].id.split('-').pop();
-        //Add to list if resource is premium (Added for avoid request request errors)
-        if(resourceList.children[i].querySelector('.resourceDetails').children[2].innerHTML=="Premium"){
-            rs.push(resourceID);
-        }else{
-            freeResources++;
-        }
-    }
-
-    //Request each resource page to get buyers data
-    rs.forEach((id, index)=>{
-        var xhr = new XMLHttpRequest();
-        console.log(id)
-        xhr.open("GET", "https://www.spigotmc.org/resources/"+id+"/buyers", true );
-        xhr.__id = id;
-        xhr.onload = (e) => {
-            if(xhr.readyState===4){
-                console.log("Checking %s of %s resources (%s)...", (rqIndex++)+1, resourceList.children.length-freeResources, xhr.__id)
-                if(xhr.status==403){
-                }else{
-                    var s = xhr.response;
-                    var div = document.createElement("div");
-                    div.innerHTML = s;
-                    var resourceData = getAllBuyersData(div.querySelector(".memberList"));
-                    resourceData.name = div.querySelector(".resourceInfo h1").innerHTML;
-                    console.log(resourceData);
-                    resourcesData.push(resourceData);
-                    totalSales+=resourceData.totalSales;
-                }
-                if(rqIndex==resourceList.children.length-freeResources){
-                    $('#loadingStats').remove();
-                    requestEnd();
-                }else{
-                    $('#loadingStats').innerHTML="Loading "+rqIndex+"/"+(resourceList.children.length-freeResources)+" resources";
-                }
+        for(var i = 0; i < resources.length; i++){
+            var resource = resources[i];
+            var premium = resource.querySelector(".cost")!=undefined;
+            if(premium){
+                var id = resource.id.substr(resource.id.lastIndexOf("-")+1);
+                resourcesD.push(id);
             }
         }
-        xhr.send(null);
-    });
-}
 
-function requestEnd(){
-    var totalInUSD = calculateTotalMoney();
-    $('.mainContent .section').innerHTML+=`
-        <div id="authorStats">
-            <p style="font-size:20px;">Summary: </p>
-            <br>
-            <div id="summary">${getSummary()}</div>
-            <span style='font-size:25px;'>Total sales: ${betterNumber(totalSales)}</span>
-            <fieldset style='font-size:25px;'>Total money gained converted to <select style="font-size:20px;" id="exchangeTotal">
-                ${getExchangesInOptions()}
-            </select>
-            <span id="tct">${getFinalTotalMoney(totalInUSD)}</span>
-            </fieldset>
-        </div>
-    `;
-    $("#exchangeTotal").addEventListener('change', () => {
-        $("#summary").innerHTML = getSummary();
-        $("#tct").innerHTML = getFinalTotalMoney(totalInUSD);
-    });
-}
+        $(".mainContent .section").innerHTML+=`<p style="font-size:20px;" id="loadingState">Loading 0/${resourcesD.length}</p>`
 
-function getFinalTotalMoney(totalInUSD){
-    return betterNumber(betterFloat(fx.convert(totalInUSD, {from: "USD", to: getSelectedExchange()})));
-}
+        var resourcesData = [];
+        var total = 0;
+        var totalSales = 0;
 
-function getSelectedExchange(){
-	if($("#exchangeTotal")==undefined){
-		return "USD";
-	}
-	return $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
-}
+        for(var i = 0; i < resourcesD.length; i++){
+            var id = resourcesD[i];
+            ajax({
+                url: `https://www.spigotmc.org/resources/${id}/buyers`,
+                success: function(response){
 
-function getSummary(){
-    rs = "";
-    for (var i = 0; i < resourcesData.length; i++) {
-        var res = resourcesData[i];
-        var totalInUSD = 0;
-    	for(ex in res.exchanges){
-    		var value = res.exchanges[ex];
-    		totalInUSD += fx.convert(value, {from: ex, to: getSelectedExchange()});
-    	}
-        rs+="<hr><span style='font-size:15px;'>"+res.name+": "+betterNumber(betterFloat(totalInUSD))+" "+getSelectedExchange()+" ("+res.totalSales+" Sales)<hr>";
+                    var page = document.createElement("div");
+                    page.innerHTML = response;
+                    var data = getBuyersData(page.querySelectorAll(".memberListItem"))
+                    console.log(data);
 
+                    var totalUSD = 0;
+                    for(var ex in data.exchanges){
+                        var usd = convert(data.exchanges[ex], ex, getSelectedExchange());
+                        totalUSD+=usd;
+                    }
+
+                    total+=totalUSD;
+                    totalSales+=data.pricedSales;
+                    resourcesData.push({data: data, name: page.querySelector(".resourceInfo h1").innerText});
+
+                    loadIndex++;
+                    console.debug("[Author] Resource", loadIndex, "loaded!")
+                    $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
+                    if(loadIndex==resourcesD.length){
+                       $("#loadingState").remove();
+                       requestEnd();
+                    }
+                }
+            });
+        }
     }
-    return rs;
-}
 
-function calculateTotalMoney(){
-    var totalInUSD = 0;
-    for (var i = 0; i < resourcesData.length; i++) {
-    	for(ex in resourcesData[i].exchanges){
-    		var value = resourcesData[i].exchanges[ex];
-    		totalInUSD += fx.convert(value, {from: ex, to: 'USD'});
-    	}
+    function requestEnd(){
+       $('.mainContent .section').innerHTML+=`
+            <div id="authorStats">
+                <p style="font-size:20px;">Summary: </p>
+                <br>
+                <div id="summary">${getSummary()}</div>
+                <span style='font-size:25px;'>Total sales: ${betterNumber(totalSales)}</span>
+                <fieldset style='font-size:25px;'>Total money gained converted to <select style="font-size:20px;" id="exchangeTotal">
+                    ${options}
+                </select>
+                <span id="tct">${betterFloat(convert(total, "USD", getSelectedExchange()))}</span>
+                </fieldset>
+            </div>
+        `;
+        $("#exchangeTotal").addEventListener('change', () => {
+            $("#summary").innerHTML = getSummary();
+            $("#tct").innerHTML = betterFloat(convert(total, "USD", getSelectedExchange()));
+        });
     }
-    return totalInUSD;
-}
 
-/*
-var xhr = new XMLHttpRequest();
-console.log(resourceID)
-xhr.open("GET", "https://www.spigotmc.org/resources/"+resourceID+"/buyers", true );
-xhr.test = i;
-xhr.onload = (e) => {
-    console.log("Checking %s of %s resources...", (rqIndex++)+1, resourceList.children.length)
-    console.log(xhr);
-    if(rqIndex==resourceList.children.length){
-        $('#loadingStats').remove();
-    }else{
-        $('#loadingStats').innerHTML="Loading "+rqIndex+"/"+resourceList.children.length+" resources";
+    function getSummary(){
+        var result = "<hr>";
+        for(var ddata in resourcesData){
+            var rdata = resourcesData[ddata].data;
+            result+=`<p style="font-size:20px;">${resourcesData[ddata].name}</p>`;
+            for(var ex in rdata.exchanges){
+                result+=`<p style="font-size:15px;">${ex}: ${betterFloat(rdata.exchanges[ex])}</p>`;
+            }
+            result+="<hr>";
+        }
+        return result;
+    }
+
+    function getSelectedExchange(){
+        if($("#exchangeTotal")==undefined){
+            return "USD";
+        }
+        return $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
     }
 }
-xhr.send(null);
-*/
