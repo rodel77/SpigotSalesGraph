@@ -22,8 +22,8 @@ for filem in os.listdir('.'):
 		print(pj+" copied...")
 		copyfile(pj, "./dist/"+pj)
 	if pj.endswith(".js") and "node_modules" not in pj and "dist" not in pj:
-		# copyfile(pj, "./dist/"+pj[2::])
-		jsfiles.append(pj);
+		copyfile(pj, "./dist/"+pj)
+		#jsfiles.append(pj);
 
 print(len(jsfiles), "files found!")
 
