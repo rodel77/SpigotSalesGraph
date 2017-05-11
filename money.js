@@ -1,5 +1,4 @@
-$.ajax({
-    dataType: "json",
+(function(){$.ajax({
     url: MONEY_URL,
     success: function(json){
         console.debug("[Request] Money request ended");
@@ -37,4 +36,4 @@ $.ajax({
             return document.querySelector(selector);
         }, $.ajax);
     }
-});
+})})();

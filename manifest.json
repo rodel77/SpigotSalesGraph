@@ -10,9 +10,8 @@
 	},
 
 	"permissions": [
-		"tabs",
 		"https://www.spigotmc.org/*",
-		"https://api.fixer.io/*"
+		"https://*.fixer.io/*"
 	],
 
 	"applications": {
