@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Spigot Sales Graph",
 	"description": "See graph/total gained and total sales in your premium spigot resources",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"icons": {
 		"16": "icon16.png",
 		"48": "icon48.png",
@@ -10,8 +10,7 @@
 	},
 
 	"permissions": [
-		"https://www.spigotmc.org/*",
-		"https://*.fixer.io/*"
+		"https://www.spigotmc.org/*"
 	],
 
 	"content_scripts": [
