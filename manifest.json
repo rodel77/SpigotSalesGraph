@@ -14,12 +14,6 @@
 		"https://*.fixer.io/*"
 	],
 
-	"applications": {
-		"gecko": {
-			"id": "spigotgraphs@rodel.com.mx"
-		}
-	},
-
 	"content_scripts": [
 		{
 			"matches": ["https://www.spigotmc.org/*/buyers"],

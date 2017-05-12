@@ -1,4 +1,4 @@
-const MONEY_URL = "https://api.fixer.io/latest?base=USD";
+const MONEY_URL = "https://api.fixer.io/latest";
 
 // Mini jquery
 function $$(selector){

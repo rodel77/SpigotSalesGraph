@@ -1,4 +1,2 @@
-node_modules/
-dist/
-.babelrc
-web-ext-artifact
+.vscode
+*.zip
