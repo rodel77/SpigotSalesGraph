@@ -5,7 +5,7 @@ function displayDashboard(info, $){
     var graphData = {};
     var currentTab = "Graph";
 
-	var oldInner = $(".innerContent").innerHTML;
+	var oldInner = $(".innerContent");
 
     function calculateGraph(){
         info.buyers.forEach(function(buyer, key, map){
@@ -96,9 +96,36 @@ function displayDashboard(info, $){
 		</div>
 
 		<div id="BList" style="display:none;">
-			${oldInner}
+			${oldInner.innerHTML}
 		</div>
     `;
+
+	var search = oldInner.querySelector("#BList div div");
+	search.innerHTML = `Search Buyer: <input type="text" class="textCtrl" id="searchUser"> ${search.innerHTML}`;
+	search = $("#searchUser");
+
+	// Search something...
+	search.oninput = function(){
+		var users = document.querySelectorAll(".memberListItem");
+		for(var i = 0; i < users.length; i++){
+			var user = users[i];
+			var name = user.querySelector(".username .StatusTooltip").innerHTML;
+			var id = user.querySelector(".avatar").classList[1];
+			id = id.substring(2, id.length-1);
+
+			if(name.toLowerCase().lastIndexOf(search.value.toLowerCase())===-1 && id.lastIndexOf(search.value)===-1){
+				user.style.display = "none";
+			}else{
+				user.style.display = null;
+			}
+			// console.log(search.value.contains(toString(id)));
+
+			// var name = users[i].innerHTML;
+			// console.log(digits(users[i].href))
+		}
+	}
+
+
     displayGraph(getSelectedExchange, graphData, getGData);
 
     $("#exchangeTotal").addEventListener('change', function(){
