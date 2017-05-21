@@ -83,9 +83,12 @@ function onReady(convert, options, $, ajax){
         for(var ddata in resourcesData){
             var rdata = resourcesData[ddata].data;
             result+=`<p style="font-size:20px;">${resourcesData[ddata].name}</p>`;
+            var totalInUSD = 0;
             for(var ex in rdata.exchanges){
                 result+=`<p style="font-size:15px;">${ex}: ${betterFloat(rdata.exchanges[ex])}</p>`;
+                totalInUSD += convert(rdata.exchanges[ex], ex, "USD");
             }
+            result+=`<p style="font-size:15px;">Total In USD: ${betterFloat(totalInUSD)}</p>`;
             result+="<hr>";
         }
         return result;

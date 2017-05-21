@@ -38,7 +38,7 @@
             onReady(convert, getExchangesInOptions(), function(selector){
                 return document.querySelector(selector);
             }, $.ajax)
-        }, 1000);
+        }, 10);
     // },
     // error: function(err){
     //     console.log(err)

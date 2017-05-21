@@ -1,2 +1,13 @@
-Issues Fixed:
-+ Fixed chrome error
+Added:
++ Added Monthly Sales Graph
++ Added Average Sales/Money Per Month
++ Added number of free copies gived and percentage of copies givedaway
++ Added "Total in USD" in author menu for each resource
+
+Tweaks:
++ Tweaked average zone in graph dashboard
++ Now graph display from first day to now (Instead of from now to first day) (Its also like a fix)
++ Load time decreased (This time is added to avoid problems with content_script order, for firefox i rewrite the plugin cause order!)
+
+Others:
++ Some code cleanups

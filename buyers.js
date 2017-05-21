@@ -1,5 +1,5 @@
 function onReady(convert, options, selector, ajax){
-    console.debug("[Buyers] Buyers initialized ")
+    console.debug("[Buyers] Buyers initialized ");
     var data = getBuyersData(document.querySelectorAll(".memberListItem"));
 
     console.debug("[Buyers]", data.pricedSales, "buyers found!");

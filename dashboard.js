@@ -3,14 +3,23 @@ function displayDashboard(info, $){
 
     var total = 0;
     var graphData = {};
+	var monthlyGraphData = {};
     var currentTab = "Graph";
 
 	var oldInner = $(".innerContent");
-
+	
     function calculateGraph(){
         info.buyers.forEach(function(buyer, key, map){
             var finalPrice = betterFloat(info.convert(buyer.price, buyer.exchange, getSelectedExchange()));
             var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
+			var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+			if(monthlyGraphData[yearMonthDate]==undefined){
+				monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
+			}else{
+				monthlyGraphData[yearMonthDate].amount+=1;
+				monthlyGraphData[yearMonthDate].money=parseInt(monthlyGraphData[yearMonthDate].money)+parseInt(finalPrice);
+			}
+
             if(graphData[simpleDate]==undefined){
                 graphData[simpleDate]={amount: 1, money: finalPrice};
             }else{
@@ -29,29 +38,54 @@ function displayDashboard(info, $){
         return data.reverse();
     }
 
+	function getMonthlyGData(value){
+        var data = [];
+        for(var gdata in monthlyGraphData){
+            data.push(parseFloat(monthlyGraphData[gdata][value]));
+        }
+        return data.reverse();
+    }
+
     function getSummary(){
         var result = `<p style="font-size:20px;">Summary:</p><hr>`;
         for(var ex in info.exchanges){
             result+=`<span style="font-size:20px;">${ex}: <b>${betterFloat(info.exchanges[ex])}</b></span>`;
         }
         result += `<hr>`;
-        result += `<span style='font-size:20px;'>Sales: <b>${info.pricedSales}</b></span><br>`
+        result += `<span style='font-size:20px;'>Sales: <b>${info.pricedSales}</b> (<b>${info.freeSales}</b> free copies) (You giveaway <b>${betterFloat((info.freeSales/(info.freeSales+info.pricedSales))*100)}%</b>)</span><br>`
         return result;
     }
 
     function getAverages(){
         var keys = Object.keys(graphData);
+		var keysM = Object.keys(monthlyGraphData);
         var averageBuy = 0;
-        var averageMoney = 0;
+		var averageMoney = 0;
+		var averageSalesPM = 0;
+		var averageMoneyPM = 0;
         for(var i = 0; i < keys.length; i++){
             averageBuy += graphData[keys[i]].amount;
             averageMoney += parseFloat(graphData[keys[i]].money);
         }
+		
+		for(var i = 0; i < keysM.length; i++){
+			averageSalesPM += monthlyGraphData[keysM[i]].amount;
+			averageMoneyPM += monthlyGraphData[keysM[i]].money;
+		}
+
         averageBuy = averageBuy/keys.length;
         averageMoney = averageMoney/keys.length;
+		averageSalesPM = averageSalesPM/keysM.length;
+		averageMoneyPM = averageMoneyPM/keysM.length;
         return `
-            <span style='font-size:15px;'>Average Sales Per Day: <b>${betterFloat(averageBuy)}</b></span>
-            <span style='font-size:15px;'>Average Money Per Day: <b>${betterFloat(averageMoney)}</b></span>
+			<br>
+			<hr>
+            <span style='font-size:15px;'>Average Sales Per Day: <b>${betterFloat(averageBuy)}</b></span><br>
+            <span style='font-size:15px;'>Average Money Per Day: <b>${betterFloat(averageMoney)}</b></span><br>
+			<hr>
+			<span style='font-size:15px;'>Average Sales Per Month: <b>${betterFloat(averageSalesPM)}</b></span><br>
+			<span style='font-size:15px;'>Average Money Per Month: <b>${betterFloat(averageMoneyPM)}</b></span><br>
+			<hr>
         `;
     }
 
@@ -88,9 +122,11 @@ function displayDashboard(info, $){
 			</select>
 			<span>: </span><b id="tct">${getTotalConverted()}</b>
 			</fieldset>
-			<div style="white-space:pre-wrap;" id="averages">${getAverages()}</div>
+			<div id="averages">${getAverages()}</div>
 
 			<div id="graphContainer"></div>
+
+			<div id="monthlyContainer"></div>
 
 			<div id="csvbtn">${getDownloadCSV()}</div>
 		</div>
@@ -118,20 +154,19 @@ function displayDashboard(info, $){
 			}else{
 				user.style.display = null;
 			}
-			// console.log(search.value.contains(toString(id)));
-
-			// var name = users[i].innerHTML;
-			// console.log(digits(users[i].href))
 		}
 	}
 
 
     displayGraph(getSelectedExchange, graphData, getGData);
+	displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
 
     $("#exchangeTotal").addEventListener('change', function(){
         graphData = {};
+		monthlyGraphData = {};
         calculateGraph();
         displayGraph(getSelectedExchange, graphData, getGData);
+		displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
         $("#tct").innerHTML = getTotalConverted();
         $("#csvbtn").innerHTM = getDownloadCSV();
     });
@@ -169,7 +204,75 @@ function displayGraph(getSelectedExchange, graphData, getGData){
 					'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
 		},
 		xAxis: {
-			categories: Object.keys(graphData)
+			categories: Object.keys(graphData).reverse()
+		},
+		tooltip: {
+            shared: true,
+            crosshairs: true
+        },
+		yAxis: {
+	        title: {
+	            text: 'Amount'
+	        },
+			labels: {
+            	format: '{value:.2f}'
+        	}
+	    },
+		legend: {
+			enabled: false
+		},
+		plotOptions: {
+			area: {
+				fillColor: {
+					linearGradient: {
+						x1: 0,
+						y1: 0,
+						x2: 0,
+						y2: 1
+					},
+					stops: [
+						[0, Highcharts.getOptions().colors[0]],
+						[1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+					]
+				},
+				marker: {
+					radius: 2
+				},
+				lineWidth: 1,
+				states: {
+					hover: {
+						lineWidth: 1
+					}
+				},
+				threshold: null
+			}
+		},
+
+		series: [{
+			name: 'Sales',
+			data: getGData("amount")
+		},{
+			name: 'Money',
+			data: getGData("money")
+		}]
+	});
+}
+
+function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
+	var hChart = Highcharts.chart('monthlyContainer', {
+		chart: {
+			renderTo: 'monthlyContainer',
+			zoomType: 'x'
+		},
+		title: {
+			text: `Monthly sales graph in ${getSelectedExchange()}`
+		},
+		subtitle: {
+			text: document.ontouchstart === undefined ?
+					'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+		},
+		xAxis: {
+			categories: Object.keys(monthlyGraphData).reverse()
 		},
 		tooltip: {
             shared: true,

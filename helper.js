@@ -1,5 +1,19 @@
 const MONEY_URL = "https://api.fixer.io/latest";
 
+const monthEnum = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"];
+
 // Mini jquery
 function $$(selector){
     return document.querySelector(selector);
@@ -34,6 +48,7 @@ function betterNumber(n) {
     return first+(decimal==undefined ? "" : "."+decimal);
 }
 
+//Get buyers data from spigot buyers section
 function getBuyersData(membersDOM){
     var buyers = new Map();
     var exchanges = {};
@@ -47,8 +62,8 @@ function getBuyersData(membersDOM){
         exchanges[exchange] = (exchanges[exchange]==undefined ? amount : exchanges[exchange]+amount)
     }
 
-    function createBuyer(userID, exchange, price, date){
-        buyers.set(userID, {exchange: exchange, price: price, date: date});
+    function createBuyer(userID, username, exchange, price, date, realDate){
+        buyers.set(userID, {username: username, exchange: exchange, price: price, date: date, realDate: realDate});
     }
 
     for(var i = 0; i < membersDOM.length; i++){
@@ -62,7 +77,7 @@ function getBuyersData(membersDOM){
             var userID = digits(cm.querySelector(".avatar").classList[1]);
             var date = cm.querySelector(".DateTime").title;
             var username = cm.querySelector(".username .StatusTooltip").innerHTML;
-            createBuyer(userID, exchange, money, date);
+            createBuyer(userID, username, exchange, money, date, new Date(date.substring(0, date.lastIndexOf("at")-1)));
             pushExchange(exchange, money);
             csv += `#${date};${username};${money+" "+exchange}`;
             pricedSales++;
