@@ -71,12 +71,16 @@ function getBuyersData(membersDOM){
         var free = cm.querySelectorAll(".muted").length===1;
         if(!free){
             //Purchased for: *amount* *exchange*
-            var pur = cm.querySelectorAll(".muted")[1].innerHTML;
+            var pur = cm.querySelectorAll(".muted")[1].innerHTML.replace(/(\r\n|\n|\r)/gm, "")+" ";
             var exchange = pur.substring(pur.length-4, pur.length-1);
             var money = parseFloat(digits(pur));
             var userID = digits(cm.querySelector(".avatar").classList[1]);
             var date = cm.querySelector(".DateTime").title;
             var username = cm.querySelector(".username .StatusTooltip").innerHTML;
+
+            var ex = pur.split(" ")[pur.charCodeAt(0)==32 ? 4 : 3].replace(" ", "");
+            exchange = ex;
+
             createBuyer(userID, username, exchange, money, date, new Date(date.substring(0, date.lastIndexOf("at")-1)));
             pushExchange(exchange, money);
             csv += `#${date};${username};${money+" "+exchange}`;

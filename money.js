@@ -22,7 +22,7 @@
 
         function convert(amount, from, to){
             var result = amount * getRate(from, to);
-            console.debug("[Money-Translator] Translating", amount, "from", from, "to", to, result);
+            console.debug("[Money-Translator] Translating", amount, "from", from, "to", to, result, arguments.callee.caller.name);
             return result;
         }
 
@@ -39,6 +39,10 @@
                 return document.querySelector(selector);
             }, $.ajax)
         }, 10);
+
+        document.onreadystatechange = function(){
+            console.log("LOADED!")
+        }
     // },
     // error: function(err){
     //     console.log(err)
