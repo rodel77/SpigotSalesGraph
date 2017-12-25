@@ -8,9 +8,27 @@ Spigot Sales or... sells that its a grammar error right? (I am not english nativ
 
 Its a tool for Spigot Premium Resources management, you will get charts, average sales/money per day/month info, the total money gained and stuff
 
-## Portal
+## Develop
 
 You can also support in the development of Spigot Sales, since this is just a hobby i cannot spend to much time on it!
+
+### Testing
+
+#### Chrome
+
++ Go to `chrome://extensions/`
++ Enable `Developer mode`
++ And `Load unpacked extension...`
++ Now search the folder on the project that contains the `manifest.json` file
++ Now you should see the dashboard when entering to any of your resources buyers page
++ You can reload the extension by pressing `Ctrl+R`
+
+
+#### Firefox
+
+I don't rememeber how to do it, i make the support a lot of time, if somebody find the way to install in-development extensions please feel free to fill this section
+
+### Portal
 
 + [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/manifest.json) Version/Icons/Scripts
 + [helper.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/helper.js) Helper class
