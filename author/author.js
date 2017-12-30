@@ -1,4 +1,4 @@
-function onReady(convert, options, $, ajax){
+function onReady(convert, options, $){
     var userLogged = $(".accountUsername").innerHTML;
     var title = $(".titleBar h1").innerHTML;
     var resources = document.querySelectorAll(".resourceListItem");
@@ -27,32 +27,33 @@ function onReady(convert, options, $, ajax){
 
         for(var i = 0; i < resourcesD.length; i++){
             var id = resourcesD[i];
-            ajax({
-                url: `https://www.spigotmc.org/resources/${id}/buyers`,
-                success: function(response){
+            fetch("https://www.spigotmc.org/resources/"+id+"/buyers", {
+                'credentials': 'same-origin'
+            }).then(function(response){
+                return response.text();
+            }).then(function(body){
+                var page = document.createElement("div");
+                page.innerHTML = body;
+                console.log(page);
+                var data = getBuyersData(page.querySelectorAll(".memberListItem"))
+                console.log(data);
 
-                    var page = document.createElement("div");
-                    page.innerHTML = response;
-                    var data = getBuyersData(page.querySelectorAll(".memberListItem"))
-                    console.log(data);
+                var totalUSD = 0;
+                for(var ex in data.exchanges){
+                    var usd = convert(data.exchanges[ex], ex, getSelectedExchange());
+                    totalUSD+=usd;
+                }
 
-                    var totalUSD = 0;
-                    for(var ex in data.exchanges){
-                        var usd = convert(data.exchanges[ex], ex, getSelectedExchange());
-                        totalUSD+=usd;
-                    }
+                total+=totalUSD;
+                totalSales+=data.pricedSales;
+                resourcesData.push({data: data, name: page.querySelector(".resourceInfo h1").innerText});
 
-                    total+=totalUSD;
-                    totalSales+=data.pricedSales;
-                    resourcesData.push({data: data, name: page.querySelector(".resourceInfo h1").innerText});
-
-                    loadIndex++;
-                    console.debug("[Author] Resource", loadIndex, "loaded!")
-                    $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
-                    if(loadIndex==resourcesD.length){
-                       $("#loadingState").remove();
-                       requestEnd();
-                    }
+                loadIndex++;
+                console.debug("[Author] Resource", loadIndex, "loaded!")
+                $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
+                if(loadIndex==resourcesD.length){
+                   $("#loadingState").remove();
+                   requestEnd();
                 }
             });
         }
