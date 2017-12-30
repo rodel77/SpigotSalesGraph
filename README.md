@@ -43,11 +43,11 @@ Building its not needed to make changes, you can always just reload the scripts 
 
 ### Portal
 
-+ [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/manifest.json) Version/Icons/Scripts
-+ [/common/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/common) Helpers used in multiple cases (money.js, helper.js)
-+ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/libs) External libraries (highcharts.js, exporting.js (Part of highcharts))
-+ [/resource/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/resource) Stuff used in resource buyers page (buyers.js, dashboard.js)
-+ [/author/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/author) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
++ [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/manifest.json) Version/Icons/Scripts
++ [/common/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/common) Helpers used in multiple cases (money.js, helper.js)
++ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/libs) External libraries (highcharts.js, exporting.js (Part of highcharts))
++ [/resource/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/resource) Stuff used in resource buyers page (buyers.js, dashboard.js)
++ [/author/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/author) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
 
 ## Misc links
 
