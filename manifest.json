@@ -10,23 +10,22 @@
 	},
 	
 	"permissions": [
-		"https://www.spigotmc.org/*",
-		"storage"
+		"https://www.spigotmc.org/*"
 	],
 	
 	"content_scripts": [
 		{
 			"matches": ["https://www.spigotmc.org/*/buyers"],
-			"js": ["libs/ajax.js", "libs/highcharts.js", "libs/exporting.js", "common/helper.js", "common/money.js", "resource/buyers.js", "resource/dashboard.js"],
+			"js": ["libs/highcharts.js", "libs/exporting.js", "common/helper.js", "common/money.js", "resource/buyers.js", "resource/dashboard.js"],
 			"run_at": "document_idle"
 		},
 		{
 			"matches": ["https://www.spigotmc.org/*/authors/*"],
-			"js": ["libs/ajax.js", "common/helper.js", "common/money.js", "author/author.js"]
+			"js": ["common/helper.js", "common/money.js", "author/author.js"]
 		},
 		{
 			"matches": ["https://www.spigotmc.org/resources/*/edit*"],
-			"js": ["libs/ajax.js", "common/helper.js", "resource/edit/sale_calculator.js"]
+			"js": ["common/helper.js", "resource/edit/sale_calculator.js"]
 		}
 	]
 }

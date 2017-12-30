@@ -1,4 +1,4 @@
-function onReady(convert, options, selector, ajax){
+function onReady(convert, options, selector){
     console.debug("[Buyers] Buyers initialized ");
     var data = getBuyersData(document.querySelectorAll(".memberListItem"));
 
