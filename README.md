@@ -8,6 +8,13 @@ Spigot Sales or... sells that its a grammar error right? (I am not english nativ
 
 Its a tool for Spigot Premium Resources management, you will get charts, average sales/money per day/month info, the total money gained and stuff
 
+## Supported Browsers
+
++ Chrome 42? or major
++ Firefox 39? or major (Not yet in store)
++ Opera (Not in store but works same as chrome)
+
+
 ## Develop
 
 You can also support in the development of Spigot Sales, since this is just a hobby i cannot spend to much time on it!
@@ -23,22 +30,24 @@ You can also support in the development of Spigot Sales, since this is just a ho
 + Now you should see the dashboard when entering to any of your resources buyers page
 + You can reload the extension by pressing `Ctrl+R`
 
-
 #### Firefox
 
-I don't rememeber how to do it, i make the support a lot of time, if somebody find the way to install in-development extensions please feel free to fill this section
++ Go to `about:debugging#addons`
++ `Load temporal addon`
++ Select the `manifest.json` file
++ Now you can reload the extension on the `Reload` link
+
+### Building
+
+Building its not needed to make changes, you can always just reload the scripts from the browser, but in case you need it you can zip all files or let the script do it self, you will need Python 3.x to run build.py, it will put all the files in a zip and name it with the version in the manifest.json
 
 ### Portal
 
 + [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/manifest.json) Version/Icons/Scripts
-+ [helper.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/helper.js) Helper class
-+ [money.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/money.js) Exchange utilities (Data extracted from https://api.fixer.io/latest?base=USD)
-+ [buyers.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/buyers.js) Used to extract buyers from the spigot resource buyers page
-+ [dashboard.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/dashboard.js) Displays the dashboard in the spigot resource buyers page
-+ [author.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/author.js) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
-+ HighCharts stuff (Better don't see this files, they can cause eye bleeding)
-    + [highcharts.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/highcharts.js)
-    + [exporting.js](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/exporting.js)
++ [/common/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/common) Helpers used in multiple cases (money.js, helper.js)
++ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/libs) External libraries (highcharts.js, exporting.js (Part of highcharts))
++ [/resource/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/resource) Stuff used in resource buyers page (buyers.js, dashboard.js)
++ [/author/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/author) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
 
 ## Misc links
 

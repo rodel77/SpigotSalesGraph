@@ -1,13 +1,5 @@
 Added:
-+ Added Monthly Sales Graph
-+ Added Average Sales/Money Per Month
-+ Added number of free copies gived and percentage of copies givedaway
-+ Added "Total in USD" in author menu for each resource
++ Added sale calculator, just click on "Edit" link on your premium resources, go to the section that you set the price/exchange and paypal account, and you will see a new "Sale: " label, just set the sale percent you wanna do, and press Apply Sale! it will update your "Cost: " label to the correct price =D I think that this is a very usefull feature
 
-Tweaks:
-+ Tweaked average zone in graph dashboard
-+ Now graph display from first day to now (Instead of from now to first day) (Its also like a fix)
-+ Load time decreased (This time is added to avoid problems with content_script order, for firefox i rewrite the plugin cause order!)
-
-Others:
-+ Some code cleanups
+Minor:
++ Updated exchanges, we have to remove the realtime API in old updates, and now for some reason there is some errors that get fixed when updating exchanges
