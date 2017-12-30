@@ -3,3 +3,5 @@ Added:
 
 Minor:
 + Updated exchanges, we have to remove the realtime API in old updates, and now for some reason there is some errors that get fixed when updating exchanges
++ Removed ajax
++ Readded fixer.io, this will send a request, and if fails then will we use old data
