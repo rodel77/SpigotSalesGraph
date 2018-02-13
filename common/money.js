@@ -15,7 +15,7 @@ rates["USD"] = 1;
 function ready(apiRates){
     console.debug("[Request] Money request ended");
 
-    rates = apiRates==undefined ? apiRates : rates;
+    rates = apiRates!=undefined ? apiRates : rates;
 
     onReady(convert, getExchangesInOptions(), function(selector){
         return document.querySelector(selector);
