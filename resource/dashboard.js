@@ -167,7 +167,8 @@ function displayDashboard(info, $){
         calculateGraph();
         displayGraph(getSelectedExchange, graphData, getGData);
 		displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
-        $("#tct").innerHTML = getTotalConverted();
+		$("#tct").innerHTML = getTotalConverted();
+		$("#averages").innerHTML = getAverages();
         $("#csvbtn").innerHTM = getDownloadCSV();
     });
 

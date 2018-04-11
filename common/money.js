@@ -2,6 +2,7 @@ fetch("https://api.fixer.io/latest?base=USD").then(function(e){
     return e.json();
 }).then(function(e){
     console.debug("[Request] Fixer request successfully");
+    e.rates["USD"] = 1;
     ready(e.rates);
 }).catch(function(e){
     console.debug("[Request] Error getting fixer json");
@@ -22,41 +23,29 @@ function ready(apiRates){
     });
 }
 
+function getRate(from, to){
+    if(from===base){
+        return rates[to];
+    }
 
-// (function(){$.ajax({
-//     url: MONEY_URL,
-//     dataType: "json",
-//     success: function(json){
-        
+    if(to===base){
+        return 1 / rates[from];
+    }
 
-        function getRate(from, to){
-            if(from===base){
-                return rates[to];
-            }
+    return rates[to] * (1 / rates[from]);
+}
 
-            if(to===base){
-                return 1 / rates[from];
-            }
+function convert(amount, from, to){
+    var result = amount * getRate(from, to);
+    console.debug("[Money-Translator] Translating", amount, "from", from, "to", to, result, arguments.callee.caller.name);
+    return result;
+}
 
-            return rates[to] * (1 / rates[from]);
-        }
-
-        function convert(amount, from, to){
-            var result = amount * getRate(from, to);
-            console.debug("[Money-Translator] Translating", amount, "from", from, "to", to, result, arguments.callee.caller.name);
-            return result;
-        }
-
-        function getExchangesInOptions(){
-            var options = "";
-            for(var ex in rates){
-                options += `<option value="${ex}" ${ex==="USD" ? "selected" : ""}>${ex}</option>`
-            }
-            return options;
-        }
-
-    // },
-    // error: function(err){
-    //     console.log(err)
-    // }
-// })})();
+function getExchangesInOptions(){
+    var options = "";
+    for(var ex in rates){
+        console.log(ex)
+        options += `<option value="${ex}" ${ex==="USD" ? "selected" : ""}>${ex}</option>`
+    }
+    return options;
+}
