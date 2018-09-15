@@ -8,6 +8,8 @@ function displayDashboard(info, $){
 
 	var oldInner = $(".innerContent");
 	
+	console.log(info.buyers)
+
     function calculateGraph(){
         info.buyers.forEach(function(buyer, key, map){
             var finalPrice = betterFloat(info.convert(buyer.price, buyer.exchange, getSelectedExchange()));

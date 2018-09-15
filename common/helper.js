@@ -75,7 +75,14 @@ function getBuyersData(membersDOM){
             var exchange = pur.substring(pur.length-4, pur.length-1);
             var money = parseFloat(digits(pur));
             var userID = digits(cm.querySelector(".avatar").classList[1]);
-            var date = cm.querySelector(".DateTime").title;
+            var date = cm.querySelector(".DateTime");
+
+            if(date.hasAttribute("title")){
+                date = date.title;
+            }else{
+                date = date.dataset.datestring+" at "+date.dataset.timestring;
+            }
+
             var username = cm.querySelector(".username .StatusTooltip").innerHTML;
 
             var ex = pur.split(" ")[pur.charCodeAt(0)==32 ? 4 : 3].replace(" ", "");
