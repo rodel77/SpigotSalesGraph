@@ -1,7 +1,2 @@
-Added:
-+ Added sale calculator, just click on "Edit" link on your premium resources, go to the section that you set the price/exchange and paypal account, and you will see a new "Sale: " label, just set the sale percent you wanna do, and press Apply Sale! it will update your "Cost: " label to the correct price =D I think that this is a very usefull feature
-
-Minor:
-+ Updated exchanges, we have to remove the realtime API in old updates, and now for some reason there is some errors that get fixed when updating exchanges
-+ Removed ajax
-+ Readded fixer.io, this will send a request, and if fails then will we use old data
++ Added the ability to disable specific resources from appearing on the author dashboard (Suggested by Brianna)
++ Minor improvements on the author dashboard too
