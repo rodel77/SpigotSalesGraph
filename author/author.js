@@ -121,32 +121,32 @@ function onReady(convert, options, $){
         displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
         displayGraph(getSelectedExchange, graphData, getGData)
 
-        averages_records();
+        // averages_records();
     }
 
-    function averages_records(){
-        let salesRecord, revenueRecord, salesSum, revenueSum, monthCount = 0;
-        for(let key in monthlyGraphData){
-            let line = monthlyGraphData[key];
-            monthCount++;
-            salesSum+=line.amount;
-            revenueSum+=line.money;
+    // function averages_records(){
+    //     let salesRecord, revenueRecord, salesSum, revenueSum, monthCount = 0;
+    //     for(let key in monthlyGraphData){
+    //         let line = monthlyGraphData[key];
+    //         monthCount++;
+    //         salesSum+=line.amount;
+    //         revenueSum+=line.money;
             
-            if(line.amount>salesRecord){
-                salesRecord = line.amount;
-            }
+    //         if(line.amount>salesRecord){
+    //             salesRecord = line.amount;
+    //         }
 
-            if(line.money>revenueRecord){
-                revenueRecord = line.money;
-            }
-        }
+    //         if(line.money>revenueRecord){
+    //             revenueRecord = line.money;
+    //         }
+    //     }
 
-        $("#revenueRecord").innerText="Revenue Record: "+revenueRecord;
-        $("#averageMonthlyRevenue").innerText="Average Monthly Revenue: "+betterFloat(revenueSum/monthCount);
+    //     $("#revenueRecord").innerText="Revenue Record: "+revenueRecord;
+    //     $("#averageMonthlyRevenue").innerText="Average Monthly Revenue: "+betterFloat(revenueSum/monthCount);
 
-        $("#salesRecord").innerText="Sales Record: "+salesRecord;
-        $("#averageMonthlySales")="Average Monthly Sales: "+betterFloat(salesSum/monthCount);
-    }
+    //     $("#salesRecord").innerText="Sales Record: "+salesRecord;
+    //     $("#averageMonthlySales").innerText="Average Monthly Sales: "+betterFloat(salesSum/monthCount);
+    // }
 
     function set_checkbox_handler(){
         document.querySelectorAll(".resource-toggle").forEach((checkbox)=>{
