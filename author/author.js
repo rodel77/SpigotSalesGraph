@@ -1,7 +1,6 @@
 function onReady(convert, options, $){
     var userLogged = $(".accountUsername").innerHTML;
     var title = $(".titleBar h1").innerHTML;
-    var resources = document.querySelectorAll(".resourceListItem");
 
     console.debug("[Author] User logged", userLogged);
     if(title.lastIndexOf(userLogged)>-1){
@@ -10,25 +9,41 @@ function onReady(convert, options, $){
         var resourcesD = [];
         var loadIndex = 0;
 
-        for(var i = 0; i < resources.length; i++){
-            var resource = resources[i];
-            var premium = resource.querySelector(".cost")!=undefined;
-            if(premium){
-                let id = resource.id.substr(resource.id.lastIndexOf("-")+1);
-                resourcesD.push(id);
-            }
-        }
-
-        $(".mainContent .section").innerHTML+=`<p style="font-size:20px;" id="loadingState">Loading 0/${resourcesD.length}</p>`
-
         var resourcesData = [];
-        var total = 0;
-        var totalSales = 0;
 
+        var pages = Math.ceil(22 / 20);
+        for(var ii = 0; ii < pages; ii++){
+            const page = ii + 1;
+            fetch(window.location.href + "?page=" + page, {
+                'credentials': 'same-origin'
+            }).then(function(response){
+                return response.text();
+            }).then(function(body){
+                const parser = new DOMParser();
+                const htmlDocument = parser.parseFromString(body, "text/html");
 
-        for(var i = 0; i < resourcesD.length; i++){
-            var id = resourcesD[i];
-            queryResource(id);
+                var resources = htmlDocument.documentElement.querySelectorAll(".resourceListItem");
+                for(var i = 0; i < resources.length; i++){
+                    var resource = resources[i];
+                    var premium = resource.querySelector(".cost")!=undefined;
+                    if(premium){
+                        let id = resource.id.substr(resource.id.lastIndexOf("-")+1);
+                        resourcesD.push(id);
+                    }
+                }
+                console.log(pages + ":" + page);
+                if (pages == page) {
+                    $(".mainContent .section").innerHTML+=`<p style="font-size:20px;" id="loadingState">Loading 0/${resourcesD.length}</p>`
+
+                    var total = 0;
+                    var totalSales = 0;
+
+                    for(var i = 0; i < resourcesD.length; i++){
+                        var id = resourcesD[i];
+                        queryResource(id);
+                    }
+                }
+            });
         }
     }
 
