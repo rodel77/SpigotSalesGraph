@@ -349,10 +349,10 @@ function onReady(convert, options, $){
     }
 
     function getSummary(){
-        var result = "<hr>";
+        var result = "";
 
         resourcesData.forEach((rdata)=>{
-            result+=`<div style="${rdata.isEnabled() ? "" : "background:#cbcbcb;"}"><p style="font-size:20px;">${rdata.name} <input class="resource-toggle" data-id="${rdata.id}" type="checkbox" ${rdata.isEnabled()? "checked" : ""}></p>`;
+            result+=`<li class="resourceListItem" style="padding:5px; ${rdata.isEnabled() ? "" : "background:#f5f5f5;"}"><p style="font-size: 15px; font-weight: bold; ${rdata.isEnabled() ? "color: #383838;" : "color: #ff5b5b;"}">${rdata.name} <input class="resource-toggle" data-id="${rdata.id}" type="checkbox" ${rdata.isEnabled()? "checked" : ""}></p>`;
             result+=`<p style="font-size:15px;">Sales: ${rdata.data.pricedSales}</p>`;
             var totalInUSD = 0;
             for(var ex in rdata.data.exchanges){
@@ -360,7 +360,7 @@ function onReady(convert, options, $){
                 totalInUSD += convert(rdata.data.exchanges[ex], ex, "USD");
             }
             result+=`<p style="font-size:15px;">Total In USD: ${betterFloat(totalInUSD)}</p>`;
-            result+="<hr></div>";
+            // result+="</div>";
         })
         return result;
     }
