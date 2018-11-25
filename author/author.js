@@ -6,44 +6,66 @@ function onReady(convert, options, $){
     if(title.lastIndexOf(userLogged)>-1){
         console.debug("[Author] Detecting owner profile")
 
-        var resourcesD = [];
-        var loadIndex = 0;
+        var resourcesD = []; // Stores the ids of the resources (used to download the resource pages)
+        var loadIndex = 0; // The current resource loading
 
-        var resourcesData = [];
+        var resourcesData = []; // The final loaded resources
 
-        var pages = Math.ceil(22 / 20);
-        for(var ii = 0; ii < pages; ii++){
-            const page = ii + 1;
+        // Load the first page from the current document
+        console.log("Reading page 1");
+        readPage(document);
+
+        var resourcesCount = parseInt($("#authorStats .resourceCount dd").innerText);
+        var pages = Math.ceil(resourcesCount / 20); // 20 is number of resources per page
+
+        if(pages==1){
+            loadResources();
+        }
+
+        for(var j = 0; j < pages; j++){
+            const page = j + 1;
+
+            // We already have the first page, so just skip it
+            if(page==1){
+                continue;
+            }
+
             fetch(window.location.href + "?page=" + page, {
                 'credentials': 'same-origin'
-            }).then(function(response){
+            }).then((response) => {
                 return response.text();
-            }).then(function(body){
+            }).then((body) => {
                 const parser = new DOMParser();
                 const htmlDocument = parser.parseFromString(body, "text/html");
 
-                var resources = htmlDocument.documentElement.querySelectorAll(".resourceListItem");
-                for(var i = 0; i < resources.length; i++){
-                    var resource = resources[i];
-                    var premium = resource.querySelector(".cost")!=undefined;
-                    if(premium){
-                        let id = resource.id.substr(resource.id.lastIndexOf("-")+1);
-                        resourcesD.push(id);
-                    }
-                }
-                console.log(pages + ":" + page);
+                console.log("Downloading page: "+page + " of " + pages);
+                readPage(htmlDocument);
+
                 if (pages == page) {
-                    $(".mainContent .section").innerHTML+=`<p style="font-size:20px;" id="loadingState">Loading 0/${resourcesD.length}</p>`
-
-                    var total = 0;
-                    var totalSales = 0;
-
-                    for(var i = 0; i < resourcesD.length; i++){
-                        var id = resourcesD[i];
-                        queryResource(id);
-                    }
+                    loadResources();
                 }
             });
+        }
+    }
+
+    function loadResources(){
+        $(".mainContent .section").innerHTML+=`<p style="font-size:20px;" id="loadingState">Loading 0/${resourcesD.length}</p>`
+
+        for(var i = 0; i < resourcesD.length; i++){
+            var id = resourcesD[i];
+            queryResource(id);
+        }
+    }
+
+    function readPage(page){
+        var resources = page.querySelectorAll(".resourceListItem");
+        for(var i = 0; i < resources.length; i++){
+            var resource = resources[i];
+            var premium = resource.querySelector(".cost")!=undefined;
+            if(premium){
+                let id = resource.id.substr(resource.id.lastIndexOf("-")+1);
+                resourcesD.push(id);
+            }
         }
     }
 
