@@ -10,8 +10,13 @@
 	},
 	
 	"permissions": [
-		"https://www.spigotmc.org/*"
+		"https://www.spigotmc.org/*",
+    		"storage"
 	],
+
+	"browser_action": {
+      		"default_popup": "popup/popup.html"
+    	},
 	
 	"content_scripts": [
 		{
