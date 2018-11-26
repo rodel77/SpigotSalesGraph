@@ -49,7 +49,7 @@ function displayDashboard(info, $){
     }
 
     function getSummary(){
-        var result = `<p style="font-size:20px;">Summary:</p><hr>`;
+        var result = `<p style="font-size:20px;">Summary</p><hr>`;
         for(var ex in info.exchanges){
             result+=`<span style="font-size:20px;">${ex}: <b>${betterFloat(info.exchanges[ex])}</b></span>`;
         }
@@ -80,7 +80,6 @@ function displayDashboard(info, $){
 		averageSalesPM = averageSalesPM/keysM.length;
 		averageMoneyPM = averageMoneyPM/keysM.length;
         return `
-			<br>
 			<hr>
             <span style='font-size:15px;'>Average Sales Per Day: <b>${betterFloat(averageBuy)}</b></span><br>
             <span style='font-size:15px;'>Average Money Per Day: <b>${betterFloat(averageMoney)}</b></span><br>
@@ -100,7 +99,7 @@ function displayDashboard(info, $){
     }
 
     function getDownloadCSV(){
-        return `<a style="font-size:25px;" download="sales.csv" href="data:text/plain;charset=utf-8,${encodeURIComponent(info.csv).replace(new RegExp("%23", 'g'), "%0A")}">Download .csv</a>`;
+        return `<a style="font-size:15px;" download="sales.csv" href="data:text/plain;charset=utf-8,${encodeURIComponent(info.csv).replace(new RegExp("%23", 'g'), "%0A")}">Download .csv</a>`;
     }
 
     function getSelectedExchange(){
@@ -108,7 +107,29 @@ function displayDashboard(info, $){
     }
 
     $(".innerContent").innerHTML = `
-        <ul class="tabs">
+    	<style>
+    	    hr {
+    	    	height: 1px;
+    			background-color: #d9d9d9;
+    			border: 0px;
+    	    }
+    		.tabs.sub {
+    			border-bottom:none!important;
+    		}
+    		.tabs.sub li a {
+    			background-color: #dddddd!important;
+    			margin-left: 5px;
+    			border-radius: 8px;
+    			transition:100ms;
+			}
+			.tabs.sub li a:hover {
+    			background-color: #cecece!important;
+			}
+    	    .tabs.sub li:first-child a {
+    	    	margin:0px;
+    	    }
+    	</style>
+        <ul class="tabs sub">
 			<li class="buyersTabGraph active">
 				<a>Graphs</a>
 			</li>
@@ -122,7 +143,7 @@ function displayDashboard(info, $){
 			<fieldset style='font-size:25px;'>Total money converted to <select style="font-size:20px;" id="exchangeTotal">
 				${info.options}
 			</select>
-			<span>: </span><b id="tct">${getTotalConverted()}</b>
+			<b id="tct">${getTotalConverted()}</b>
 			</fieldset>
 			<div id="averages">${getAverages()}</div>
 
