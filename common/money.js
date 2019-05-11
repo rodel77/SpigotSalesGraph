@@ -1,11 +1,11 @@
-fetch("https://api.fixer.io/latest?base=USD").then(function(e){
+fetch("https://api.exchangeratesapi.io/latest?base=USD").then(function(e){
     return e.json();
 }).then(function(e){
-    console.debug("[Request] Fixer request successfully");
+    console.debug("[Request] Exchange request successfully");
     e.rates["USD"] = 1;
     ready(e.rates);
 }).catch(function(e){
-    console.debug("[Request] Error getting fixer json");
+    console.debug("[Request] Error getting exchange json");
     ready(undefined);
 });
 
@@ -43,9 +43,10 @@ function convert(amount, from, to){
 
 function getExchangesInOptions(){
     var options = "";
+	
     for(var ex in rates){
-        console.log(ex)
         options += `<option value="${ex}" ${ex==="USD" ? "selected" : ""}>${ex}</option>`
     }
-    return options;
+    
+	return options;
 }
