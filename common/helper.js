@@ -89,16 +89,12 @@ function getBuyersData(membersDOM){
         var free = cm.querySelectorAll(".muted").length===1;
         if(!free){
             //Purchased for: *amount* *exchange*
-            var pur = cm.querySelectorAll(".muted")[1].innerHTML.replace(/(\r\n|\n|\r)/gm, "")+" ";
-            var exchange = pur.substring(pur.length-4, pur.length-1);
-            var money = parseFloat(digits(pur));
+            var pur = cm.querySelectorAll(".muted")[1].textContent.replace(/(?:\r\n|\r|\n)/g, '').split(" ");
+            var exchange = pur[pur.length-1];
+            var money = parseFloat(digits(pur[pur.length-2]));
             var userID = digits(cm.querySelector(".avatar").classList[1]);
             var date = buildDate(cm.querySelector(".DateTime"));
-
             var username = cm.querySelector(".username .StatusTooltip").innerHTML;
-
-            var ex = pur.split(" ")[pur.charCodeAt(0)==32 ? 4 : 3].replace(" ", "");
-            exchange = ex;
 
             createBuyer(userID, username, exchange, money, date.date, date.realDate);
             pushExchange(exchange, money);

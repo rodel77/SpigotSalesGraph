@@ -7,28 +7,42 @@ function displayDashboard(info, $){
     var currentTab = "Graph";
 
 	var oldInner = $(".innerContent");
-	
-	console.log(info.buyers)
 
     function calculateGraph(){
-        info.buyers.forEach(function(buyer, key, map){
-            var finalPrice = betterFloat(info.convert(buyer.price, buyer.exchange, getSelectedExchange()));
+        for(entry of info.buyers.entries()){
+			var buyer = entry[1];
+			
+            var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
             var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
 			var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+			
 			if(monthlyGraphData[yearMonthDate]==undefined){
 				monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
 			}else{
 				monthlyGraphData[yearMonthDate].amount+=1;
-				monthlyGraphData[yearMonthDate].money=parseInt(monthlyGraphData[yearMonthDate].money)+parseInt(finalPrice);
+				monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
 			}
 
             if(graphData[simpleDate]==undefined){
                 graphData[simpleDate]={amount: 1, money: finalPrice};
             }else{
                 graphData[simpleDate].amount+=1;
-                graphData[simpleDate].money=parseInt(graphData[simpleDate].money)+parseInt(finalPrice);
+                graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
             }
-        });
+        };
+		
+		// make the money string look better
+		for(el in monthlyGraphData){
+			el = monthlyGraphData[el];
+			
+		    el.money = betterFloat(el.money);
+		};
+		
+		for(el in graphData){
+			el = graphData[el];
+			
+		    el.money = betterFloat(el.money);
+		};
     }
     calculateGraph();
 
@@ -72,7 +86,7 @@ function displayDashboard(info, $){
 		
 		for(var i = 0; i < keysM.length; i++){
 			averageSalesPM += monthlyGraphData[keysM[i]].amount;
-			averageMoneyPM += monthlyGraphData[keysM[i]].money;
+			averageMoneyPM += parseFloat(monthlyGraphData[keysM[i]].money);
 		}
 
         averageBuy = averageBuy/keys.length;
