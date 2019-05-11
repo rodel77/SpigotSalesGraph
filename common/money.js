@@ -43,9 +43,10 @@ function convert(amount, from, to){
 
 function getExchangesInOptions(){
     var options = "";
+	
     for(var ex in rates){
-        console.log(ex)
         options += `<option value="${ex}" ${ex==="USD" ? "selected" : ""}>${ex}</option>`
     }
-    return options;
+    
+	return options;
 }

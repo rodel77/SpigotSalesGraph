@@ -48,6 +48,24 @@ function betterNumber(n) {
     return first+(decimal==undefined ? "" : "."+decimal);
 }
 
+function ajaxGetRequest(url, callbackSuccess, callbackError = null){
+	var xhttp = new XMLHttpRequest();
+	
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) {
+			if(this.status == 200){
+				callbackSuccess(this.responseText);
+			
+			}else{
+				if(callbackError != null)
+					callbackError();
+			}
+		}
+	};
+	xhttp.open("GET", url, true);
+	xhttp.send();
+}
+
 //Get buyers data from spigot buyers section
 function getBuyersData(membersDOM){
     var buyers = new Map();
@@ -75,28 +93,22 @@ function getBuyersData(membersDOM){
             var exchange = pur.substring(pur.length-4, pur.length-1);
             var money = parseFloat(digits(pur));
             var userID = digits(cm.querySelector(".avatar").classList[1]);
-            var date = cm.querySelector(".DateTime");
-
-            if(date.hasAttribute("title")){
-                date = date.title;
-            }else{
-                date = date.dataset.datestring+" at "+date.dataset.timestring;
-            }
+            var date = buildDate(cm.querySelector(".DateTime"));
 
             var username = cm.querySelector(".username .StatusTooltip").innerHTML;
 
             var ex = pur.split(" ")[pur.charCodeAt(0)==32 ? 4 : 3].replace(" ", "");
             exchange = ex;
 
-            createBuyer(userID, username, exchange, money, date, new Date(date.substring(0, date.lastIndexOf("at")-1)));
+            createBuyer(userID, username, exchange, money, date.date, date.realDate);
             pushExchange(exchange, money);
-            csv += `#${date};${username};${money+" "+exchange}`;
+            csv += `#${date.date};${username};${money+" "+exchange}`;
             pricedSales++;
         }else{
             freeSales++;
         }
     }
-
+	
     return {
         buyers: buyers,
         exchanges: exchanges,
@@ -104,4 +116,25 @@ function getBuyersData(membersDOM){
         freeSales: freeSales,
         csv: csv
     };
+}
+
+function buildDate(date){
+	if(date.hasAttribute("title")){
+		date = date.title;
+	}else{
+		date = date.dataset.datestring+" at "+date.dataset.timestring;
+	}
+	
+	return { date: date, realDate: new Date(date.substring(0, date.lastIndexOf("at")-1)) }
+}
+
+function getBuyerPagesAmount(){
+	const el = document.querySelectorAll(".pageNavHeader")[0];
+	
+	if(el == undefined)
+		return 1;
+	
+	const elText = el.textContent;
+	
+	return parseInt(elText.substring(elText.lastIndexOf(' ')+1));
 }
