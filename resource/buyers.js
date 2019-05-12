@@ -27,11 +27,10 @@ function onReady(convert, options, selector){
 		const fragment = document.createElement("html");
 		var buyerElements = Array.prototype.slice.call(document.querySelectorAll(".memberListItem"));
 		
-		// now fetch every page
+// now fetch every page
 		for(var i=2; i<=buyerPagesAmount; i++){
 			const page = i;
-			
-			ajaxGetRequest(window.location.href + "?page=" + page, (content) => {
+			ensure(0, page, (content) => {
 				// parse content
 				{
 					fragment.innerHTML = content;
@@ -53,9 +52,18 @@ function onReady(convert, options, selector){
 						done(getBuyersData(buyerElements));
 					}
 				}
-			}, () => {
-				console.error("[Buyers]", "An error occured while fetching content of page " + page);
 			});
 		}
     }
+}
+
+// Ensure all pages are fetched
+function ensure(retries, page, runner){
+	ajaxGetRequest(window.location.href + "?page=" + page, runner, () => {
+		console.error("[Buyers]", "An error occured while fetching content of page " + page);
+		//Make sure to not spam too much
+		if(retries < 5){
+			ensure(retries++, page, runner);
+		}
+	});
 }
