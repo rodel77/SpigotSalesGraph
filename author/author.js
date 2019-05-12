@@ -74,24 +74,57 @@ function onReady(convert, options, $){
     var disabledResources = {};
 
     function queryResource(id){
-        fetch("https://www.spigotmc.org/resources/"+id+"/buyers", {
+		const resource = "https://www.spigotmc.org/resources/"+id+"/buyers";
+        fetch(resource, {
             'credentials': 'same-origin'
         }).then(function(response){
             return response.text();
         }).then(function(body){
-            var page = document.createElement("div");
-            page.innerHTML = body;
-            var data = getBuyersData(page.querySelectorAll(".memberListItem"))
-
-            // var totalUSD = 0;
-            // for(var ex in data.exchanges){
-            //     var usd = convert(data.exchanges[ex], ex, getSelectedExchange());
-            //     totalUSD+=usd;
-            // }
-
-            // total+=totalUSD;
-            // totalSales+=data.pricedSales;
-            resourcesData.push({
+			const html = document.createElement("div");
+            html.innerHTML = body;
+			const buyerPagesAmount = getBuyerPagesAmount(html);
+			var fetchedBuyerPages = 1;
+			
+			if(buyerPagesAmount == 1){
+				done(id, html, getBuyersData(html.querySelectorAll(".memberListItem")));
+				return;
+			}
+			
+			const fragment = document.createElement("html");
+			var buyerElements = Array.prototype.slice.call(html.querySelectorAll(".memberListItem"));
+			
+			// now fetch every page
+			for(var i=2; i<=buyerPagesAmount; i++){
+				const page = i;
+				ensure(resource, 0, page, (content) => {
+					// parse content
+					{
+						fragment.innerHTML = content;
+						buyerElements = buyerElements.concat(Array.prototype.slice.call(fragment.querySelectorAll(".memberListItem")));
+					}
+					
+					// update state
+					{
+						fetchedBuyerPages++;
+						
+						if(fetchedBuyerPages == buyerPagesAmount){
+							buyerElements.sort((a, b) => {
+								const dateA = buildDate(a.querySelectorAll(".DateTime")[0]).realDate;
+								const dateB = buildDate(b.querySelectorAll(".DateTime")[0]).realDate;
+								
+								return dateA > dateB ? -1 : 1;
+							});
+							
+							done(id, html, getBuyersData(buyerElements));
+						}
+					}
+				});
+			}
+        });
+    }
+	
+	function done(id, page, data){
+		resourcesData.push({
                 data: data,
                 id: id,
                 name: page.querySelector(".resourceInfo h1").innerText,
@@ -107,8 +140,7 @@ function onReady(convert, options, $){
                $("#loadingState").remove();
                requestEnd();
             }
-        });
-    }
+	}
 
     function getMonthlyGData(value){
         var data = [];
@@ -220,22 +252,24 @@ function onReady(convert, options, $){
 
                 var buyers = resource.data.buyers;
                 buyers.forEach(function(buyer, key, map){
-                    var finalPrice = betterFloat(convert(buyer.price, buyer.exchange, getSelectedExchange()));
-                    var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
-                    var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
-                    if(monthlyGraphData[yearMonthDate]==undefined){
-                        monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
-                    }else{
-                        monthlyGraphData[yearMonthDate].amount+=1;
-                        monthlyGraphData[yearMonthDate].money=parseInt(monthlyGraphData[yearMonthDate].money)+parseInt(finalPrice);
-                    }
-                    
-                    if(unordered[simpleDate]==undefined){
-                        unordered[simpleDate]={amount: 1, money: finalPrice, date: buyer.realDate};
-                    }else{
-                        unordered[simpleDate].amount+=1;
-                        unordered[simpleDate].money=parseInt(unordered[simpleDate].money)+parseInt(finalPrice);
-                    }
+					if(!isNaN(buyer.price)){
+						var finalPrice = betterFloat(convert(buyer.price, buyer.exchange, getSelectedExchange()));
+						var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
+						var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+						if(monthlyGraphData[yearMonthDate]==undefined){
+							monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
+						}else{
+							monthlyGraphData[yearMonthDate].amount+=1;
+							monthlyGraphData[yearMonthDate].money=parseInt(monthlyGraphData[yearMonthDate].money)+parseInt(finalPrice);
+						}
+						
+						if(unordered[simpleDate]==undefined){
+							unordered[simpleDate]={amount: 1, money: finalPrice, date: buyer.realDate};
+						}else{
+							unordered[simpleDate].amount+=1;
+							unordered[simpleDate].money=parseInt(unordered[simpleDate].money)+parseInt(finalPrice);
+						}
+					}
                 });
             }
         });
@@ -393,8 +427,10 @@ function onReady(convert, options, $){
             result+=`<p style="font-size:15px;">Sales: ${rdata.data.pricedSales}</p>`;
             var totalInUSD = 0;
             for(var ex in rdata.data.exchanges){
-                result+=`<p style="font-size:15px;">${ex}: ${betterFloat(rdata.data.exchanges[ex])}</p>`;
-                totalInUSD += convert(rdata.data.exchanges[ex], ex, "USD");
+				if(ex){
+					result+=`<p style="font-size:15px;">${ex}: ${betterFloat(rdata.data.exchanges[ex])}</p>`;
+					totalInUSD += convert(rdata.data.exchanges[ex], ex, "USD");
+				}
             }
             result+=`<p style="font-size:15px;">Total In USD: ${betterFloat(totalInUSD)}</p>`;
             // result+="</div>";
@@ -427,8 +463,10 @@ function onReady(convert, options, $){
         resourcesData.forEach((resource)=>{
             if(resource.isEnabled()){
                 for(let ex in resource.data.exchanges){
-                    let usd = convert(resource.data.exchanges[ex], ex, getSelectedExchange());
-                    totalExchange+=usd;
+					if(ex){
+						let usd = convert(resource.data.exchanges[ex], ex, getSelectedExchange());
+						totalExchange+=usd;
+					}
                 }
             }
         });

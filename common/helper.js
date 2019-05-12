@@ -124,8 +124,8 @@ function buildDate(date){
 	return { date: date, realDate: new Date(date.substring(0, date.lastIndexOf("at")-1)) }
 }
 
-function getBuyerPagesAmount(){
-	const el = document.querySelectorAll(".pageNavHeader")[0];
+function getBuyerPagesAmount(body){
+	const el = body.querySelectorAll(".pageNavHeader")[0];
 	
 	if(el == undefined)
 		return 1;
@@ -133,4 +133,14 @@ function getBuyerPagesAmount(){
 	const elText = el.textContent;
 	
 	return parseInt(elText.substring(elText.lastIndexOf(' ')+1));
+}
+
+// Ensure all pages are fetched
+function ensure(resource, retries, page, callback){
+	ajaxGetRequest(resource + "?page=" + page, callback, () => {
+		console.error("[Buyers]", "An error occured while fetching content of page " + page + " retries: " + retries);
+		setTimeout(()=>{
+			ensure(resource, retries+1, page, callback)
+		}, retries * 1000);
+	});
 }

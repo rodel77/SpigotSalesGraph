@@ -16,7 +16,7 @@ function onReady(convert, options, selector){
 	};
 	
 	{
-		const buyerPagesAmount = getBuyerPagesAmount();
+		const buyerPagesAmount = getBuyerPagesAmount(document);
 		var fetchedBuyerPages = 1;
 		
 		if(buyerPagesAmount == 1){
@@ -30,7 +30,7 @@ function onReady(convert, options, selector){
 // now fetch every page
 		for(var i=2; i<=buyerPagesAmount; i++){
 			const page = i;
-			ensure(0, page, (content) => {
+			ensure(window.location.href, 0, page, (content) => {
 				// parse content
 				{
 					fragment.innerHTML = content;
@@ -55,15 +55,4 @@ function onReady(convert, options, selector){
 			});
 		}
     }
-}
-
-// Ensure all pages are fetched
-function ensure(retries, page, runner){
-	ajaxGetRequest(window.location.href + "?page=" + page, runner, () => {
-		console.error("[Buyers]", "An error occured while fetching content of page " + page);
-		//Make sure to not spam too much
-		if(retries < 5){
-			ensure(retries++, page, runner);
-		}
-	});
 }
