@@ -16,7 +16,7 @@ function onReady(convert, options, selector){
 	};
 	
 	{
-		const buyerPagesAmount = getBuyerPagesAmount();
+		const buyerPagesAmount = getBuyerPagesAmount(document);
 		var fetchedBuyerPages = 1;
 		
 		if(buyerPagesAmount == 1){
@@ -27,11 +27,10 @@ function onReady(convert, options, selector){
 		const fragment = document.createElement("html");
 		var buyerElements = Array.prototype.slice.call(document.querySelectorAll(".memberListItem"));
 		
-		// now fetch every page
+// now fetch every page
 		for(var i=2; i<=buyerPagesAmount; i++){
 			const page = i;
-			
-			ajaxGetRequest(window.location.href + "?page=" + page, (content) => {
+			ensure(window.location.href, 0, page, (content) => {
 				// parse content
 				{
 					fragment.innerHTML = content;
@@ -53,8 +52,6 @@ function onReady(convert, options, selector){
 						done(getBuyersData(buyerElements));
 					}
 				}
-			}, () => {
-				console.error("[Buyers]", "An error occured while fetching content of page " + page);
 			});
 		}
     }

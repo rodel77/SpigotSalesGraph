@@ -11,24 +11,25 @@ function displayDashboard(info, $){
     function calculateGraph(){
         for(entry of info.buyers.entries()){
 			var buyer = entry[1];
-			
-            var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
-            var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
-			var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
-			
-			if(monthlyGraphData[yearMonthDate]==undefined){
-				monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
-			}else{
-				monthlyGraphData[yearMonthDate].amount+=1;
-				monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
-			}
+			if(!isNaN(buyer.price)){
+				var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
+				var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
+				var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+				
+				if(monthlyGraphData[yearMonthDate]==undefined){
+					monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
+				}else{
+					monthlyGraphData[yearMonthDate].amount+=1;
+					monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
+				}
 
-            if(graphData[simpleDate]==undefined){
-                graphData[simpleDate]={amount: 1, money: finalPrice};
-            }else{
-                graphData[simpleDate].amount+=1;
-                graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
-            }
+				if(graphData[simpleDate]==undefined){
+					graphData[simpleDate]={amount: 1, money: finalPrice};
+				}else{
+					graphData[simpleDate].amount+=1;
+					graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
+				}
+			}
         };
 		
 		// make the money string look better
@@ -65,7 +66,9 @@ function displayDashboard(info, $){
     function getSummary(){
         var result = `<p style="font-size:20px;">Summary</p><hr>`;
         for(var ex in info.exchanges){
-            result+=`<span style="font-size:20px;">${ex}: <b>${betterFloat(info.exchanges[ex])}</b></span>`;
+			if(ex){
+				result+=`<span style="font-size:20px;">${ex}: <b>${betterFloat(info.exchanges[ex])}</b></span>`;
+			}
         }
         result += `<hr>`;
         result += `<span style='font-size:20px;'>Sales: <b>${info.pricedSales}</b> (<b>${info.freeSales}</b> free copies) (You giveaway <b>${betterFloat((info.freeSales/(info.freeSales+info.pricedSales))*100)}%</b>)</span><br>`
@@ -107,7 +110,9 @@ function displayDashboard(info, $){
     function getTotalConverted(){
         var total = 0;
         for(var ex in info.exchanges){
-            total += info.convert(info.exchanges[ex], ex, getSelectedExchange())
+			if(ex){
+				total += info.convert(info.exchanges[ex], ex, getSelectedExchange());
+			}
         }
         return betterFloat(total);
     }
