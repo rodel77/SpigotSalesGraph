@@ -139,8 +139,9 @@ function getBuyerPagesAmount(body){
 function ensure(resource, retries, page, callback){
 	ajaxGetRequest(resource + "?page=" + page, callback, () => {
 		console.error("[Buyers]", "An error occured while fetching content of page " + page + " retries: " + retries);
+		retries+=1;
 		setTimeout(()=>{
-			ensure(resource, retries+1, page, callback)
+			ensure(resource, retries, page, callback)
 		}, retries * 1000);
 	});
 }
