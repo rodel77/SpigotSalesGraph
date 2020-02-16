@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Spigot Sales Graph",
-	"description": "See graph/total gained and total sales in your premium spigot resources",
+	"description": "See your montly/total revenue in your premium spigot resources",
 	"version": "1.4.8",
 	"icons": {
 		"16": "icon16.png",
@@ -15,22 +15,38 @@
 	],
 
 	"browser_action": {
-      		"default_popup": "popup/popup.html"
+      		"default_popup": "source/popup/popup.html"
     	},
 	
 	"content_scripts": [
 		{
 			"matches": ["https://www.spigotmc.org/*/buyers"],
-			"js": ["libs/highcharts.js", "libs/exporting.js", "common/helper.js", "common/money.js", "resource/buyers.js", "resource/dashboard.js"],
+			"js": [
+				"source/libs/highcharts.js",
+				"source/libs/exporting.js",
+				"source/common/helper.js",
+				"source/common/money.js",
+				"source/resource/buyers.js",
+				"source/resource/dashboard.js"
+			],
 			"run_at": "document_idle"
 		},
 		{
 			"matches": ["https://www.spigotmc.org/*/authors/*"],
-			"js": ["libs/highcharts.js", "libs/exporting.js", "common/helper.js", "common/money.js", "author/author.js"]
+			"js": [
+				"source/libs/highcharts.js",
+				"source/libs/exporting.js",
+				"source/common/helper.js",
+				"source/common/money.js",
+				"source/author/author.js"
+			]
 		},
 		{
 			"matches": ["https://www.spigotmc.org/resources/*/edit*"],
-			"js": ["common/helper.js", "resource/edit/sale_calculator.js"]
+			"js": [
+				"source/common/helper.js",
+				"source/resource/edit/sale_calculator.js"
+			]
 		}
 	]
 }

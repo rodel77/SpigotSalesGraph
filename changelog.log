@@ -1,2 +1,1 @@
-+ Added the ability to disable specific resources from appearing on the author dashboard (Suggested by Brianna)
-+ Minor improvements on the author dashboard too
++ Fixes related to page load retrying by @Dablakbandit
