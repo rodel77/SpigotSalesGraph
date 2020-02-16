@@ -1,4 +1,4 @@
-# SpigotSellsViewer-ChromeExtension
+![logo](https://rodeldev.xyz/img/spigot.png)
 
 [![chrome-version](https://img.shields.io/chrome-web-store/v/ipcabmoaiebegllbfjbljlpcedjehiaj.svg)](https://chrome.google.com/webstore/detail/spigot-sales-graph/ipcabmoaiebegllbfjbljlpcedjehiaj)
 [![chrome-users](https://img.shields.io/chrome-web-store/users/ipcabmoaiebegllbfjbljlpcedjehiaj.svg)](https://chrome.google.com/webstore/detail/spigot-sales-graph/ipcabmoaiebegllbfjbljlpcedjehiaj)
@@ -17,7 +17,7 @@ Its a tool for Spigot Premium Resources management, you will get charts, average
 
 ## Develop
 
-You can also support in the development of Spigot Sales, since this is just a hobby i cannot spend to much time on it!
+You can also support in the development of Spigot Sales, since this is just a hobby I cannot spend to much time on it!
 
 ### Testing
 
@@ -39,15 +39,21 @@ You can also support in the development of Spigot Sales, since this is just a ho
 
 ### Building
 
-Building its not needed to make changes, you can always just reload the scripts from the browser, but in case you need it you can zip all files or let the script do it self, you will need Python 3.x to run build.py, it will put all the files in a zip and name it with the version in the manifest.json
+Not needed to develop, but in case you need it, you can zip `manifest.json`, `source` and all the icons.
+
+Also you can use gulp:
++ `npm install`
++ `gulp`
+
+It will be created in the `/builds` directory
 
 ### Portal
 
-+ [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/manifest.json) Version/Icons/Scripts
-+ [/common/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/common) Helpers used in multiple cases (money.js, helper.js)
-+ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/libs) External libraries (highcharts.js, exporting.js (Part of highcharts))
-+ [/resource/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/resource) Stuff used in resource buyers page (buyers.js, dashboard.js)
-+ [/author/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/develop/author) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
++ [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/manifest.json) Version/Icons/Scripts
++ [source/common/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/common) Helpers used in multiple cases (money.js, helper.js)
++ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/libs) External libraries (highcharts.js, exporting.js (Part of highcharts))
++ [/resource/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/resource) Stuff used in resource buyers page (buyers.js, dashboard.js)
++ [/author/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/author) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
 
 ## Misc links
 
