@@ -4,7 +4,7 @@ function displayDashboard(info, $){
     var total = 0;
     var graphData = {};
 	var monthlyGraphData = {};
-    var currentTab = "Graph";
+    var currentTab = "BList";
 
 	var oldInner = $(".innerContent");
 
@@ -12,7 +12,7 @@ function displayDashboard(info, $){
         for(entry of info.buyers.entries()){
 			var buyer = entry[1];
 			if(!isNaN(buyer.price)){
-				var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
+				var finalPrice = info.convert(buyer.price, "EUR", getSelectedExchange());
 				var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
 				var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
 				
@@ -122,7 +122,7 @@ function displayDashboard(info, $){
     }
 
     function getSelectedExchange(){
-        return $("#exchangeTotal")==undefined ? "USD" : $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
+        return $("#exchangeTotal")==undefined ? "EUR" : $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
     }
 
     $(".innerContent").innerHTML = `
@@ -157,7 +157,7 @@ function displayDashboard(info, $){
 			</li>
 		</ul>
 
-       <div style="padding:10px;" id="Graph">
+       <div style="padding:10px; display:none;" id="Graph">
 			<div style="white-space:pre-wrap;" id="sumary">${getSummary()}</div>
 			<fieldset style='font-size:25px;'>Total money converted to <select style="font-size:20px;" id="exchangeTotal">
 				${info.options}
@@ -173,7 +173,7 @@ function displayDashboard(info, $){
 			<div id="csvbtn">${getDownloadCSV()}</div>
 		</div>
 
-		<div id="BList" style="display:none;">
+		<div id="BList">
 			${oldInner.innerHTML}
 		</div>
     `;

@@ -45,7 +45,7 @@ function getExchangesInOptions(){
     var options = "";
 	
     for(var ex in rates){
-        options += `<option value="${ex}" ${ex==="USD" ? "selected" : ""}>${ex}</option>`
+        options += `<option value="${ex}" ${ex==="EUR" ? "selected" : ""}>${ex}</option>`
     }
     
 	return options;
