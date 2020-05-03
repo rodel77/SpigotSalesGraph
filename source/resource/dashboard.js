@@ -118,7 +118,15 @@ function displayDashboard(info, $){
     }
 
     function getDownloadCSV(){
-        return `<a style="font-size:15px;" download="sales.csv" href="data:text/plain;charset=utf-8,${encodeURIComponent(info.csv).replace(new RegExp("%23", 'g'), "%0A")}">Download .csv</a>`;
+		let csvContent = `Date;Username;Price (${getSelectedExchange()});Resource`;
+
+		for(entry of info.buyers.entries()){
+			let date = entry[1].realDate;
+			
+			csvContent += encodeURIComponent(`\n${date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()};${entry[1].username};${info.convert(entry[1].price, entry[1].exchange, getSelectedExchange())}`);
+		}
+
+        return `<a style="font-size:15px;" download="Spigot Premium Resource Sales Report ${getCSVName()}" href="data:text/plain;charset=utf-8,${csvContent}">Download .csv (convert currencies to ${getSelectedExchange()})</a>`;
     }
 
     function getSelectedExchange(){
@@ -211,7 +219,7 @@ function displayDashboard(info, $){
 		displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
 		$("#tct").innerHTML = getTotalConverted();
 		$("#averages").innerHTML = getAverages();
-        $("#csvbtn").innerHTM = getDownloadCSV();
+        $("#csvbtn").innerHTML = getDownloadCSV();
     });
 
     $(".buyersTabGraph a").addEventListener("click", function(){

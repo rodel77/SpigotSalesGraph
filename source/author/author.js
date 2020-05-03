@@ -74,7 +74,7 @@ function onReady(convert, options, $){
     var disabledResources = {};
 
     function queryResource(id){
-		const resource = "https://www.spigotmc.org/resources/"+id+"/buyers";
+        const resource = "https://www.spigotmc.org/resources/"+id+"/buyers";
         fetch(resource, {
             'credentials': 'same-origin'
         }).then(function(response){
@@ -83,7 +83,7 @@ function onReady(convert, options, $){
 			const html = document.createElement("div");
             html.innerHTML = body;
 			const buyerPagesAmount = getBuyerPagesAmount(html);
-			var fetchedBuyerPages = 1;
+            var fetchedBuyerPages = 1;
 			
 			if(buyerPagesAmount == 1){
 				done(id, html, getBuyersData(html.querySelectorAll(".memberListItem")));
@@ -91,21 +91,21 @@ function onReady(convert, options, $){
 			}
 			
 			const fragment = document.createElement("html");
-			var buyerElements = Array.prototype.slice.call(html.querySelectorAll(".memberListItem"));
+            var buyerElements = Array.prototype.slice.call(html.querySelectorAll(".memberListItem"));
 			
 			// now fetch every page
 			for(var i=2; i<=buyerPagesAmount; i++){
-				const page = i;
+                const page = i;
 				ensure(resource, 0, page, (content) => {
-					// parse content
+                    // parse content
 					{
-						fragment.innerHTML = content;
+                        fragment.innerHTML = content;
 						buyerElements = buyerElements.concat(Array.prototype.slice.call(fragment.querySelectorAll(".memberListItem")));
 					}
 					
 					// update state
 					{
-						fetchedBuyerPages++;
+                        fetchedBuyerPages++;
 						
 						if(fetchedBuyerPages == buyerPagesAmount){
 							buyerElements.sort((a, b) => {
@@ -114,7 +114,6 @@ function onReady(convert, options, $){
 								
 								return dateA > dateB ? -1 : 1;
 							});
-							
 							done(id, html, getBuyersData(buyerElements));
 						}
 					}
@@ -125,21 +124,21 @@ function onReady(convert, options, $){
 	
 	function done(id, page, data){
 		resourcesData.push({
-                data: data,
-                id: id,
-                name: page.querySelector(".resourceInfo h1").innerText,
-                isEnabled: function(){
-                    return disabledResources[this.id]==undefined;
-                }
-            });
-
-            loadIndex++;
-            console.debug("[Author] Resource", loadIndex, "loaded!")
-            $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
-            if(loadIndex==resourcesD.length){
-               $("#loadingState").remove();
-               requestEnd();
+            data: data,
+            id: id,
+            name: page.querySelector(".resourceInfo h1").innerText,
+            isEnabled: function(){
+                return disabledResources[this.id]==undefined;
             }
+        });
+
+        loadIndex++;
+        console.debug("[Author] Resource", loadIndex, "loaded!")
+        $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
+        if(loadIndex==resourcesD.length){
+           $("#loadingState").remove();
+           requestEnd();
+        }
 	}
 
     function getMonthlyGData(value){
@@ -156,6 +155,20 @@ function onReady(convert, options, $){
             data.push(parseFloat(graphData[gdata][value]));
         }
         return data.reverse();
+    }
+
+    function getDownloadCSV(){
+		let csvContent = `Date;Username;Price (${getSelectedExchange()});Resource`;
+
+		for(resource of resourcesData){
+            for(entry of resource.data.buyers.entries()){
+                let date = entry[1].realDate;
+                    
+                csvContent += encodeURIComponent(`\n${date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()};${entry[1].username};${convert(entry[1].price, entry[1].exchange, getSelectedExchange())};${resource.name}`);
+            }
+		}
+
+        return `<a style="font-size:15px;" download="Spigot Author Sales Report ${getCSVName()}" href="data:text/plain;charset=utf-8,${csvContent}">Download .csv (convert currencies to ${getSelectedExchange()})</a>`;
     }
 
     function requestEnd(){
@@ -178,10 +191,13 @@ function onReady(convert, options, $){
                 <div id="graphContainer"></div>
 
                 <div id="monthlyContainer"></div>
+
+                <div id="csvbtn">${getDownloadCSV()}</div>
             </div>
         `;
         $("#exchangeTotal").addEventListener('change', () => {
             repaint();
+            $("#csvbtn").innerHTML = getDownloadCSV();
         });
         
         set_checkbox_handler();

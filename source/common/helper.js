@@ -74,7 +74,7 @@ function getBuyersData(membersDOM){
     var pricedSales = 0;
     var freeSales = 0;
 
-    var csv = "Date;User;Money";
+    // var csv = "Date;User;Money";
 
     function pushExchange(exchange, amount){
         exchanges[exchange] = (exchanges[exchange]==undefined ? amount : exchanges[exchange]+amount)
@@ -88,17 +88,21 @@ function getBuyersData(membersDOM){
         var cm = membersDOM[i];
         var free = cm.querySelectorAll(".muted").length===1;
         if(!free){
-            //Purchased for: *amount* *exchange*
-            var pur = cm.querySelectorAll(".muted")[1].textContent.replace(/(?:\r\n|\r|\n)/g, '').split(" ");
-            var exchange = pur[pur.length-1];
-            var money = parseFloat(digits(pur[pur.length-2]));
+            //Purchased for: *amount* *exchange* (sometime whitespace is added here...)
+            var pricePhrase = cm.querySelectorAll(".muted")[1].textContent.replace(/(?:\r\n|\r|\n)/g, '').split(" ");
+
+            pricePhrase = pricePhrase.filter((word)=>{
+                return word.length!=0;
+            });
+
+            var exchange = pricePhrase[pricePhrase.length-1];
+            var price = parseFloat(digits(pricePhrase[pricePhrase.length-2]));
             var userID = digits(cm.querySelector(".avatar").classList[1]);
             var date = buildDate(cm.querySelector(".DateTime"));
             var username = cm.querySelector(".username .StatusTooltip").innerHTML;
 
-            createBuyer(userID, username, exchange, money, date.date, date.realDate);
-            pushExchange(exchange, money);
-            csv += `#${date.date};${username};${money+" "+exchange}`;
+            createBuyer(userID, username, exchange, price, date.date, date.realDate);
+            pushExchange(exchange, price);
             pricedSales++;
         }else{
             freeSales++;
@@ -110,8 +114,12 @@ function getBuyersData(membersDOM){
         exchanges: exchanges,
         pricedSales: pricedSales,
         freeSales: freeSales,
-        csv: csv
     };
+}
+
+function getCSVName(){
+    let actualDate = new Date();
+    return actualDate.getFullYear()+"/"+actualDate.getMonth()+"/"+actualDate.getDate()+" "+actualDate.getHours()+":"+actualDate.getMinutes()+".csv";
 }
 
 function buildDate(date){
