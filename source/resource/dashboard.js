@@ -35,14 +35,10 @@ function displayDashboard(info, $){
 		// make the money string look better
 		for(el in monthlyGraphData){
 			el = monthlyGraphData[el];
-			
-		    el.money = betterFloat(el.money);
 		};
 		
 		for(el in graphData){
 			el = graphData[el];
-			
-		    el.money = betterFloat(el.money);
 		};
     }
     calculateGraph();
@@ -50,15 +46,15 @@ function displayDashboard(info, $){
     function getGData(value){
         var data = [];
         for(var gdata in graphData){
-            data.push(parseFloat(graphData[gdata][value]));
+            data.push(graphData[gdata][value]);
         }
         return data.reverse();
     }
 
 	function getMonthlyGData(value){
-        var data = [];
+		var data = [];
         for(var gdata in monthlyGraphData){
-            data.push(parseFloat(monthlyGraphData[gdata][value]));
+            data.push(monthlyGraphData[gdata][value]);
         }
         return data.reverse();
     }
@@ -259,7 +255,8 @@ function displayGraph(getSelectedExchange, graphData, getGData){
 		},
 		tooltip: {
             shared: true,
-            crosshairs: true
+			crosshairs: true,
+			pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y:,.2f}</b><br>",
         },
 		yAxis: {
 	        title: {
@@ -300,9 +297,11 @@ function displayGraph(getSelectedExchange, graphData, getGData){
 		},
 
 		series: [{
+			color: '#ed8106',
 			name: 'Sales',
 			data: getGData("amount")
 		},{
+			color: '#393e44',
 			name: 'Money',
 			data: getGData("money")
 		}]
@@ -310,6 +309,7 @@ function displayGraph(getSelectedExchange, graphData, getGData){
 }
 
 function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
+	console.log(getGData("money"))
 	var hChart = Highcharts.chart('monthlyContainer', {
 		chart: {
 			renderTo: 'monthlyContainer',
@@ -327,14 +327,15 @@ function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
 		},
 		tooltip: {
             shared: true,
-            crosshairs: true
+			crosshairs: true,
+			pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y:,.2f}</b><br>",
         },
 		yAxis: {
 	        title: {
 	            text: 'Amount'
 	        },
 			labels: {
-            	format: '{value:.2f}'
+            	format: '{value:,.2f}'
         	}
 	    },
 		legend: {
@@ -368,9 +369,11 @@ function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
 		},
 
 		series: [{
+			color: '#ed8106',
 			name: 'Sales',
 			data: getGData("amount")
 		},{
+			color: '#393e44',
 			name: 'Money',
 			data: getGData("money")
 		}]

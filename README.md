@@ -4,9 +4,7 @@
 [![chrome-users](https://img.shields.io/chrome-web-store/users/ipcabmoaiebegllbfjbljlpcedjehiaj.svg)](https://chrome.google.com/webstore/detail/spigot-sales-graph/ipcabmoaiebegllbfjbljlpcedjehiaj)
 [![chrome-rating](https://img.shields.io/chrome-web-store/rating/ipcabmoaiebegllbfjbljlpcedjehiaj.svg)](https://chrome.google.com/webstore/detail/spigot-sales-graph/ipcabmoaiebegllbfjbljlpcedjehiaj)
 
-Spigot Sales or... sells that its a grammar error right? (I am not english native speaker... sorry)
-
-Its a tool for Spigot Premium Resources management, you will get charts, average sales/money per day/month info, the total money gained and stuff
+SpigotGraph is a tool for Spigot premium resources management, you are able to see daily and monthly charts in your resource's buyers and author's page.
 
 ## Supported Browsers
 

@@ -1,1 +1,4 @@
-+ Fixes related to page load retrying by @Dablakbandit
++ Added a new graph in author's page to show how much each resource made over the months
++ Added a best month record on author's page
++ Reworked color palette to match spigot's style
++ Fixed graph truncating money amounts higher than 1,000

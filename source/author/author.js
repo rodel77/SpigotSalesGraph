@@ -70,6 +70,7 @@ function onReady(convert, options, $){
     }
 
     var monthlyGraphData = {};
+    var monthlyResources = {};
     var graphData = {};
     var disabledResources = {};
 
@@ -141,18 +142,30 @@ function onReady(convert, options, $){
         }
 	}
 
+    function getMonthlyResourcesGData(value){
+        var data = [];
+        for(var month in monthlyGraphData){
+            if(monthlyResources==undefined || monthlyResources[value.toString()][month]==undefined){
+                data.push(0);
+                continue;
+            }
+            data.push(monthlyResources[value.toString()][month].money);
+        }
+        return data.reverse();
+    }
+
     function getMonthlyGData(value){
         var data = [];
-        for(var gdata in monthlyGraphData){
-            data.push(parseFloat(monthlyGraphData[gdata][value]));
+        for(var month in monthlyGraphData){
+            data.push(monthlyGraphData[month][value]);
         }
         return data.reverse();
     }
 
     function getGData(value){
         var data = [];
-        for(var gdata in graphData){
-            data.push(parseFloat(graphData[gdata][value]));
+        for(var month in graphData){
+            data.push(graphData[month][value]);
         }
         return data.reverse();
     }
@@ -178,19 +191,18 @@ function onReady(convert, options, $){
                 <br>
                 <div id="summary">${getSummary()}</div>
                 <span style='font-size:25px;' id="totalSales">${getTotalSales()}</span>
-                <!-- <span style='font-size:25px;' id="revenueRecord"></span> 
-                <span style='font-size:25px;' id="averageMonthlyRevenue"></span>
-                <span style='font-size:25px;' id="salesRecord"></span>
-                <span style='font-size:25px;' id="averageMonthlySales"></span> -->
-                <fieldset style='font-size:25px;'>Total money gained converted to <select style="font-size:20px;" id="exchangeTotal">
-                    ${options}
+                <fieldset style='font-size:25px;'>Total revenue converted to <select style="font-size:20px;" id="exchangeTotal">
+                ${options}
                 </select>
                 <span id="tct">${betterFloat(getTotalInExchange())}</span>
                 </fieldset>
+                <span style='font-size:25px;' id="revenueRecord"></span> <br> <!-- DOM goes brrrr -rodel -->
 
                 <div id="graphContainer"></div>
 
                 <div id="monthlyContainer"></div>
+
+                <div id="monthlyResourceContainer"></div>
 
                 <div id="csvbtn">${getDownloadCSV()}</div>
             </div>
@@ -200,40 +212,29 @@ function onReady(convert, options, $){
             $("#csvbtn").innerHTML = getDownloadCSV();
         });
         
-        set_checkbox_handler();
+        setCheckboxHandler();
 
         calculateGraph();
+        displayMonthlyResourceGraph(getSelectedExchange, monthlyGraphData, getMonthlyResourcesGData);
         displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
         displayGraph(getSelectedExchange, graphData, getGData)
 
-        // averages_records();
+        averagesRecords();
     }
 
-    // function averages_records(){
-    //     let salesRecord, revenueRecord, salesSum, revenueSum, monthCount = 0;
-    //     for(let key in monthlyGraphData){
-    //         let line = monthlyGraphData[key];
-    //         monthCount++;
-    //         salesSum+=line.amount;
-    //         revenueSum+=line.money;
-            
-    //         if(line.amount>salesRecord){
-    //             salesRecord = line.amount;
-    //         }
+    function averagesRecords(){
+        var bestMonth = undefined, bestAmount = -1;
+        for(let key in monthlyGraphData){
+            if(monthlyGraphData[key].money>bestAmount){
+                bestAmount = monthlyGraphData[key].money;
+                bestMonth = key;
+            }
+        }
 
-    //         if(line.money>revenueRecord){
-    //             revenueRecord = line.money;
-    //         }
-    //     }
+        $("#revenueRecord").innerText = "Best month: "+bestMonth+" ("+betterFloat(bestAmount)+" "+getSelectedExchange()+")";
+    }
 
-    //     $("#revenueRecord").innerText="Revenue Record: "+revenueRecord;
-    //     $("#averageMonthlyRevenue").innerText="Average Monthly Revenue: "+betterFloat(revenueSum/monthCount);
-
-    //     $("#salesRecord").innerText="Sales Record: "+salesRecord;
-    //     $("#averageMonthlySales").innerText="Average Monthly Sales: "+betterFloat(salesSum/monthCount);
-    // }
-
-    function set_checkbox_handler(){
+    function setCheckboxHandler(){
         document.querySelectorAll(".resource-toggle").forEach((checkbox)=>{
             checkbox.addEventListener('change', (element) => {
                 if(element.target.checked){
@@ -254,10 +255,12 @@ function onReady(convert, options, $){
         monthlyGraphData = {};
         graphData = {};
         calculateGraph();
+        displayMonthlyResourceGraph(getSelectedExchange, monthlyGraphData, getMonthlyResourcesGData);
         displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
         displayGraph(getSelectedExchange, graphData, getGData);
 
-        set_checkbox_handler();
+        setCheckboxHandler();
+        averagesRecords();
     }
 
     function calculateGraph(){
@@ -267,17 +270,29 @@ function onReady(convert, options, $){
             if(resource.isEnabled()){
 
                 var buyers = resource.data.buyers;
+                // console.log(resource)
                 buyers.forEach(function(buyer, key, map){
 					if(!isNaN(buyer.price)){
-						var finalPrice = betterFloat(convert(buyer.price, buyer.exchange, getSelectedExchange()));
+						var finalPrice = convert(buyer.price, buyer.exchange, getSelectedExchange());
 						var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
-						var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+                        var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+                        
 						if(monthlyGraphData[yearMonthDate]==undefined){
 							monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
 						}else{
 							monthlyGraphData[yearMonthDate].amount+=1;
-							monthlyGraphData[yearMonthDate].money=parseInt(monthlyGraphData[yearMonthDate].money)+parseInt(finalPrice);
-						}
+							monthlyGraphData[yearMonthDate].money+=finalPrice;
+                        }
+
+                        if(monthlyResources[resource.id]==undefined){
+                            monthlyResources[resource.id] = {};
+                        }
+
+                        if(monthlyResources[resource.id][yearMonthDate]==undefined){
+                            monthlyResources[resource.id][yearMonthDate] = {money: finalPrice};
+                        }else{
+                            monthlyResources[resource.id][yearMonthDate].money += finalPrice;
+                        }
 						
 						if(unordered[simpleDate]==undefined){
 							unordered[simpleDate]={amount: 1, money: finalPrice, date: buyer.realDate};
@@ -317,14 +332,15 @@ function onReady(convert, options, $){
             },
             tooltip: {
                 shared: true,
-                crosshairs: true
+                crosshairs: true,
+                pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y:,.2f}</b><br>",
             },
             yAxis: {
                 title: {
                     text: 'Amount'
                 },
                 labels: {
-                    format: '{value:.2f}'
+                    format: '{value:,.2f}'
                 }
             },
             legend: {
@@ -358,9 +374,11 @@ function onReady(convert, options, $){
             },
     
             series: [{
+                color: '#ed8106',
                 name: 'Sales',
                 data: getGData("amount")
             },{
+                color: '#393e44',
                 name: 'Money',
                 data: getGData("money")
             }]
@@ -368,6 +386,26 @@ function onReady(convert, options, $){
     }
 
     function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
+        var series = [{
+            color: '#ed8106',
+            name: 'Sales',
+            data: getGData("amount")
+        },{
+            color: '#393e44',
+            name: 'Money',
+            data: getGData("money")
+        }];
+
+        for(resource of resourcesData){
+            if(!resource.isEnabled()) continue;
+            const id = parseInt(resource.id);
+            series.push({
+                color: "#"+(((id % 0xFF)<<16) | (((id * 0x7f) % 0xFF)<<8) | ((id * 0xFF) % 0xFF)).toString(16),
+                name: resource.name,
+                data: getGData(id)
+            });
+        }
+
         var hChart = Highcharts.chart('monthlyContainer', {
             chart: {
                 renderTo: 'monthlyContainer',
@@ -385,14 +423,15 @@ function onReady(convert, options, $){
             },
             tooltip: {
                 shared: true,
-                crosshairs: true
+                crosshairs: true,
+                pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y:,.2f}</b><br>",
             },
             yAxis: {
                 title: {
                     text: 'Amount'
                 },
                 labels: {
-                    format: '{value:.2f}'
+                    format: '{value:,.2f}'
                 }
             },
             legend: {
@@ -425,13 +464,82 @@ function onReady(convert, options, $){
                 }
             },
     
-            series: [{
-                name: 'Sales',
-                data: getGData("amount")
-            },{
-                name: 'Money',
-                data: getGData("money")
-            }]
+            series: series
+        });
+    }
+
+    function displayMonthlyResourceGraph(getSelectedExchange, monthlyGraphData, getGData){
+        var series = [];
+
+        for(resource of resourcesData){
+            if(!resource.isEnabled()) continue;
+            const id = parseInt(resource.id);
+            series.push({
+                color: "#"+(((id % 0xFF)<<16) | (((id * 0x7f) % 0xFF)<<8) | ((id * 0xFF) % 0xFF)).toString(16),
+                name: resource.name,
+                data: getGData(id)
+            });
+        }
+
+        var hChart = Highcharts.chart('monthlyResourceContainer', {
+            chart: {
+                renderTo: 'monthlyResourceContainer',
+                zoomType: 'x'
+            },
+            title: {
+                text: `Monthly resource sales graph in ${getSelectedExchange()}`
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                categories: Object.keys(monthlyGraphData).reverse()
+            },
+            tooltip: {
+                shared: true,
+                crosshairs: true,
+                pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y:,.2f}</b><br>",
+            },
+            yAxis: {
+                title: {
+                    text: 'Amount'
+                },
+                labels: {
+                    format: '{value:,.2f}'
+                }
+            },
+            legend: {
+                enabled: false
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+    
+            series: series
         });
     }
 
