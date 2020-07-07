@@ -43,15 +43,18 @@ function displayDashboard(info, $){
             if(lastdate == undefined) {
               lastdate = simpleDate;
             } else {
-              console.log("last: "+lastdate+"  this: "+simpleDate);
 
-              var on = new Date(lastdate).getTime()+86400000;
-              while(on < thisdate.getTime()) {
+              var thisdate = new Date(simpleDate);
+              var on = new Date(lastdate).getTime()-86400000;
+
+              while(on > thisdate.getTime()) {
+
                 var ondate = new Date(on);
                 var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
                 console.log("Add: "+keyName);
-                graphData[keyName]={amount: 0, money: 0};
-                on += 86400000;
+                graphData[keyName] = {amount: 0, money: 0};
+                on -= 86400000;
+
               }
 
               lastdate = simpleDate;
@@ -66,36 +69,6 @@ function displayDashboard(info, $){
 				    }
 			   }
       };
-
-      /*var lastdate;
-      for(date in graphData) {
-        console.log(date);
-        var i = Object.keys(graphData).indexOf(date);
-        if(lastdate == undefined) {
-          lastdate = graphData[date];
-          continue;
-        }
-        if(i == Object.keys(graphData).length-1) break;
-        var thisdate = new Date(date);
-        var ldate = new Date(Object.keys(graphData)[i+1]);
-
-        var thisdateday = ldate.getDate()
-        var lastdateday = new Date(thisdate);
-        lastdateday.setDate(thisdate.getDate()-1);
-        lastdateday = lastdateday.getDate();
-        if(thisdateday != lastdateday) {
-          console.log(thisdateday+"!="+lastdateday+" missing before "+thisdate);
-
-          var on = ldate.getTime()+86400000;
-          while(on < thisdate.getTime()) {
-            var ondate = new Date(on);
-            var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
-            console.log("Add: "+keyName);
-            graphData[keyName]={amount: 0, money: 0};
-            on += 86400000;
-          }
-        }
-      }*/
 
 		  // make the money string look better
 		  for(el in monthlyGraphData){
