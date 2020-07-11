@@ -1,4 +1,4 @@
-function displayDashboard(info, $){
+async function displayDashboard(info, $){
     console.debug("[Dashboard] Displaying dashboard");
 
     var total = 0;
@@ -24,7 +24,9 @@ function displayDashboard(info, $){
 	var oldInner = $(".innerContent");
 
 
-    function calculateGraph(){
+    async function calculateGraph(){
+      var showSalelessDays = await getOption("salelessDays");
+      
       var lastdate;
       for(entry of info.buyers.entries()){
 			  var buyer = entry[1];
@@ -40,24 +42,26 @@ function displayDashboard(info, $){
 					     monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
 				    }
 
-            if(lastdate == undefined) {
-              lastdate = simpleDate;
-            } else {
+            if(showSalelessDays) {
+              if(lastdate == undefined) {
+                lastdate = simpleDate;
+              } else {
 
-              var thisdate = new Date(simpleDate);
-              var on = new Date(lastdate).getTime()-86400000;
+                var thisdate = new Date(simpleDate);
+                var on = new Date(lastdate).getTime()-86400000;
 
-              while(on > thisdate.getTime()) {
+                while(on > thisdate.getTime()) {
 
-                var ondate = new Date(on);
-                var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
-                console.log("Add: "+keyName);
-                graphData[keyName] = {amount: 0, money: 0};
-                on -= 86400000;
+                  var ondate = new Date(on);
+                  var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
+                  console.log("Add: "+keyName);
+                  graphData[keyName] = {amount: 0, money: 0};
+                  on -= 86400000;
 
+                }
+
+                lastdate = simpleDate;
               }
-
-              lastdate = simpleDate;
             }
 
 
@@ -79,7 +83,7 @@ function displayDashboard(info, $){
 			  el = graphData[el];
 		  };
     }
-    calculateGraph();
+    await calculateGraph();
 
     function getGData(value){
         var data = [];
@@ -416,4 +420,13 @@ function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
 			data: getGData("money")
 		}]
 	});
+}
+
+
+function getOption(name) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get([name], (result) => {
+      resolve(result[name]);
+    })
+  })
 }
