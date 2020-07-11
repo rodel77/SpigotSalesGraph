@@ -1,3 +1,18 @@
+var months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+]
+
 function onReady(convert, options, $){
     var userLogged = $(".accountUsername").innerHTML;
     var title = $(".titleBar h1").innerHTML;
@@ -85,15 +100,15 @@ function onReady(convert, options, $){
             html.innerHTML = body;
 			const buyerPagesAmount = getBuyerPagesAmount(html);
             var fetchedBuyerPages = 1;
-			
+
 			if(buyerPagesAmount == 1){
 				done(id, html, getBuyersData(html.querySelectorAll(".memberListItem")));
 				return;
 			}
-			
+
 			const fragment = document.createElement("html");
             var buyerElements = Array.prototype.slice.call(html.querySelectorAll(".memberListItem"));
-			
+
 			// now fetch every page
 			for(var i=2; i<=buyerPagesAmount; i++){
                 const page = i;
@@ -103,16 +118,16 @@ function onReady(convert, options, $){
                         fragment.innerHTML = content;
 						buyerElements = buyerElements.concat(Array.prototype.slice.call(fragment.querySelectorAll(".memberListItem")));
 					}
-					
+
 					// update state
 					{
                         fetchedBuyerPages++;
-						
+
 						if(fetchedBuyerPages == buyerPagesAmount){
 							buyerElements.sort((a, b) => {
 								const dateA = buildDate(a.querySelectorAll(".DateTime")[0]).realDate;
 								const dateB = buildDate(b.querySelectorAll(".DateTime")[0]).realDate;
-								
+
 								return dateA > dateB ? -1 : 1;
 							});
 							done(id, html, getBuyersData(buyerElements));
@@ -122,7 +137,7 @@ function onReady(convert, options, $){
 			}
         });
     }
-	
+
 	function done(id, page, data){
 		resourcesData.push({
             data: data,
@@ -176,7 +191,7 @@ function onReady(convert, options, $){
 		for(resource of resourcesData){
             for(entry of resource.data.buyers.entries()){
                 let date = entry[1].realDate;
-                    
+
                 csvContent += encodeURIComponent(`\n${date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()};${entry[1].username};${convert(entry[1].price, entry[1].exchange, getSelectedExchange())};${resource.name}`);
             }
 		}
@@ -184,7 +199,7 @@ function onReady(convert, options, $){
         return `<a style="font-size:15px;" download="Spigot Author Sales Report ${getCSVName()}" href="data:text/plain;charset=utf-8,${csvContent}">Download .csv (convert currencies to ${getSelectedExchange()})</a>`;
     }
 
-    function requestEnd(){
+    async function requestEnd(){
        $('.mainContent .section').innerHTML+=`
             <div id="authorStats">
                 <p style="font-size:20px;">Summary: </p>
@@ -211,10 +226,10 @@ function onReady(convert, options, $){
             repaint();
             $("#csvbtn").innerHTML = getDownloadCSV();
         });
-        
+
         setCheckboxHandler();
 
-        calculateGraph();
+        await calculateGraph();
         displayMonthlyResourceGraph(getSelectedExchange, monthlyGraphData, getMonthlyResourcesGData);
         displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
         displayGraph(getSelectedExchange, graphData, getGData)
@@ -248,13 +263,13 @@ function onReady(convert, options, $){
         });
     }
 
-    function repaint(){
+    async function repaint(){
         $("#summary").innerHTML = getSummary();
         $("#totalSales").innerHTML = getTotalSales();
         $("#tct").innerHTML = betterFloat(getTotalInExchange());
         monthlyGraphData = {};
         graphData = {};
-        calculateGraph();
+        await calculateGraph();
         displayMonthlyResourceGraph(getSelectedExchange, monthlyGraphData, getMonthlyResourcesGData);
         displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
         displayGraph(getSelectedExchange, graphData, getGData);
@@ -263,8 +278,10 @@ function onReady(convert, options, $){
         averagesRecords();
     }
 
-    function calculateGraph(){
+    async function calculateGraph(){
+      var showSalelessDays = await getOption("salelessDays");
         var unordered = {};
+        var lastdate;
 
         resourcesData.forEach((resource)=>{
             if(resource.isEnabled()){
@@ -276,7 +293,7 @@ function onReady(convert, options, $){
 						var finalPrice = convert(buyer.price, buyer.exchange, getSelectedExchange());
 						var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
                         var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
-                        
+
 						if(monthlyGraphData[yearMonthDate]==undefined){
 							monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
 						}else{
@@ -293,13 +310,35 @@ function onReady(convert, options, $){
                         }else{
                             monthlyResources[resource.id][yearMonthDate].money += finalPrice;
                         }
-						
+
 						if(unordered[simpleDate]==undefined){
 							unordered[simpleDate]={amount: 1, money: finalPrice, date: buyer.realDate};
 						}else{
 							unordered[simpleDate].amount+=1;
 							unordered[simpleDate].money=parseInt(unordered[simpleDate].money)+parseInt(finalPrice);
 						}
+
+            if(showSalelessDays) {
+              if(lastdate == undefined) {
+                lastdate = simpleDate;
+              } else {
+
+                var thisdate = new Date(simpleDate);
+                var on = new Date(lastdate).getTime()-86400000;
+
+                while(on > thisdate.getTime()) {
+
+                  var ondate = new Date(on);
+                  var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
+                  console.log("Add: "+keyName);
+                  unordered[keyName] = {amount: 0, money: 0};
+                  on -= 86400000;
+
+                }
+
+                lastdate = simpleDate;
+              }
+            }
 					}
                 });
             }
@@ -372,7 +411,7 @@ function onReady(convert, options, $){
                     threshold: null
                 }
             },
-    
+
             series: [{
                 color: '#ed8106',
                 name: 'Sales',
@@ -463,7 +502,7 @@ function onReady(convert, options, $){
                     threshold: null
                 }
             },
-    
+
             series: series
         });
     }
@@ -538,7 +577,7 @@ function onReady(convert, options, $){
                     threshold: null
                 }
             },
-    
+
             series: series
         });
     }
@@ -618,4 +657,12 @@ function onReady(convert, options, $){
         }
         return $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
     }
+}
+
+function getOption(name) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get([name], (result) => {
+      resolve(result[name]);
+    })
+  })
 }
