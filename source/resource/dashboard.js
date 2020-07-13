@@ -1,4 +1,4 @@
-function displayDashboard(info, $){
+async function displayDashboard(info, $){
     console.debug("[Dashboard] Displaying dashboard");
 
     var total = 0;
@@ -6,42 +6,84 @@ function displayDashboard(info, $){
 	var monthlyGraphData = {};
     var currentTab = "Graph";
 
+    var months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
+
 	var oldInner = $(".innerContent");
 
-    function calculateGraph(){
-        for(entry of info.buyers.entries()){
-			var buyer = entry[1];
-			if(!isNaN(buyer.price)){
-				var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
-				var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
-				var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
-				
-				if(monthlyGraphData[yearMonthDate]==undefined){
-					monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
-				}else{
-					monthlyGraphData[yearMonthDate].amount+=1;
-					monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
-				}
 
-				if(graphData[simpleDate]==undefined){
-					graphData[simpleDate]={amount: 1, money: finalPrice};
-				}else{
-					graphData[simpleDate].amount+=1;
-					graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
-				}
-			}
-        };
-		
-		// make the money string look better
-		for(el in monthlyGraphData){
-			el = monthlyGraphData[el];
-		};
-		
-		for(el in graphData){
-			el = graphData[el];
-		};
+    async function calculateGraph(){
+      var showSalelessDays = await getOption("salelessDays");
+      
+      var lastdate;
+      for(entry of info.buyers.entries()){
+			  var buyer = entry[1];
+			  if(!isNaN(buyer.price)){
+				    var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
+				    var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
+				    var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+
+				    if(monthlyGraphData[yearMonthDate]==undefined){
+					     monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
+				    }else{
+					         monthlyGraphData[yearMonthDate].amount+=1;
+					     monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
+				    }
+
+            if(showSalelessDays) {
+              if(lastdate == undefined) {
+                lastdate = simpleDate;
+              } else {
+
+                var thisdate = new Date(simpleDate);
+                var on = new Date(lastdate).getTime()-86400000;
+
+                while(on > thisdate.getTime()) {
+
+                  var ondate = new Date(on);
+                  var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
+                  console.log("Add: "+keyName);
+                  graphData[keyName] = {amount: 0, money: 0};
+                  on -= 86400000;
+
+                }
+
+                lastdate = simpleDate;
+              }
+            }
+
+
+				    if(graphData[simpleDate]==undefined){
+					         graphData[simpleDate]={amount: 1, money: finalPrice};
+				    }else{
+					     graphData[simpleDate].amount+=1;
+					     graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
+				    }
+			   }
+      };
+
+		  // make the money string look better
+		  for(el in monthlyGraphData){
+			  el = monthlyGraphData[el];
+		  };
+
+		  for(el in graphData){
+			  el = graphData[el];
+		  };
     }
-    calculateGraph();
+    await calculateGraph();
 
     function getGData(value){
         var data = [];
@@ -82,7 +124,7 @@ function displayDashboard(info, $){
             averageBuy += graphData[keys[i]].amount;
             averageMoney += parseFloat(graphData[keys[i]].money);
         }
-		
+
 		for(var i = 0; i < keysM.length; i++){
 			averageSalesPM += monthlyGraphData[keysM[i]].amount;
 			averageMoneyPM += parseFloat(monthlyGraphData[keysM[i]].money);
@@ -118,7 +160,7 @@ function displayDashboard(info, $){
 
 		for(entry of info.buyers.entries()){
 			let date = entry[1].realDate;
-			
+
 			csvContent += encodeURIComponent(`\n${date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate()};${entry[1].username};${info.convert(entry[1].price, entry[1].exchange, getSelectedExchange())}`);
 		}
 
@@ -378,4 +420,13 @@ function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
 			data: getGData("money")
 		}]
 	});
+}
+
+
+function getOption(name) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get([name], (result) => {
+      resolve(result[name]);
+    })
+  })
 }
