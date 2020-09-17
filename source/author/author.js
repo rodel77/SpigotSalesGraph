@@ -279,7 +279,7 @@ function onReady(convert, options, $){
     }
 
     async function calculateGraph(){
-      var showSalelessDays = await getOption("salelessDays");
+        var showSalelessDays = await getOption("salelessDays");
         var unordered = {};
         var lastdate;
 
@@ -657,12 +657,4 @@ function onReady(convert, options, $){
         }
         return $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
     }
-}
-
-function getOption(name) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.sync.get([name], (result) => {
-      resolve(result[name]);
-    })
-  })
 }

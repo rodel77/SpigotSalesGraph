@@ -29,59 +29,58 @@ async function displayDashboard(info, $){
       
       var lastdate;
       for(entry of info.buyers.entries()){
-			  var buyer = entry[1];
-			  if(!isNaN(buyer.price)){
-				    var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
-				    var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
-				    var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
+			var buyer = entry[1];
+			if(!isNaN(buyer.price)){
+				var finalPrice = info.convert(buyer.price, buyer.exchange, getSelectedExchange());
+				var simpleDate = buyer.date.substring(0, buyer.date.lastIndexOf("at")-1);
+				var yearMonthDate = buyer.realDate.getFullYear()+" "+monthEnum[buyer.realDate.getMonth()];
 
-				    if(monthlyGraphData[yearMonthDate]==undefined){
-					     monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
-				    }else{
-					         monthlyGraphData[yearMonthDate].amount+=1;
-					     monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
-				    }
+				if(monthlyGraphData[yearMonthDate]==undefined){
+					monthlyGraphData[yearMonthDate] = {amount: 1, money: finalPrice};
+				}else{
+					monthlyGraphData[yearMonthDate].amount+=1;
+					monthlyGraphData[yearMonthDate].money=monthlyGraphData[yearMonthDate].money+finalPrice;
+				}
 
-            if(showSalelessDays) {
-              if(lastdate == undefined) {
-                lastdate = simpleDate;
-              } else {
+				if(showSalelessDays) {
+					if(lastdate == undefined) {
+						lastdate = simpleDate;
+					} else {
+						var thisdate = new Date(simpleDate);
+						var on = new Date(lastdate).getTime()-86400000;
 
-                var thisdate = new Date(simpleDate);
-                var on = new Date(lastdate).getTime()-86400000;
+						while(on > thisdate.getTime()) {
 
-                while(on > thisdate.getTime()) {
+						var ondate = new Date(on);
+						var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
+						graphData[keyName] = {amount: 0, money: 0};
+						on -= 86400000;
 
-                  var ondate = new Date(on);
-                  var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
-                  console.log("Add: "+keyName);
-                  graphData[keyName] = {amount: 0, money: 0};
-                  on -= 86400000;
+						}
 
-                }
-
-                lastdate = simpleDate;
-              }
-            }
+						lastdate = simpleDate;
+					}
+				}
 
 
-				    if(graphData[simpleDate]==undefined){
-					         graphData[simpleDate]={amount: 1, money: finalPrice};
-				    }else{
-					     graphData[simpleDate].amount+=1;
-					     graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
-				    }
-			   }
-      };
+				if(graphData[simpleDate]==undefined){
+					graphData[simpleDate]={amount: 1, money: finalPrice};
+					graphData[simpleDate].realDate = buyer.realDate;
+				}else{
+					graphData[simpleDate].amount+=1;
+					graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
+				}
+			}
+      	};
 
-		  // make the money string look better
-		  for(el in monthlyGraphData){
-			  el = monthlyGraphData[el];
-		  };
+		// make the money string look better
+		for(el in monthlyGraphData){
+			el = monthlyGraphData[el];
+		};
 
-		  for(el in graphData){
-			  el = graphData[el];
-		  };
+		for(el in graphData){
+			el = graphData[el];
+		};
     }
     await calculateGraph();
 
@@ -245,15 +244,14 @@ async function displayDashboard(info, $){
 		}
 	}
 
-
-    displayGraph(getSelectedExchange, graphData, getGData);
+    displayGraph(getSelectedExchange, graphData, getGData, info);
 	displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
 
     $("#exchangeTotal").addEventListener('change', function(){
         graphData = {};
 		monthlyGraphData = {};
         calculateGraph();
-        displayGraph(getSelectedExchange, graphData, getGData);
+        displayGraph(getSelectedExchange, graphData, getGData, info);
 		displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
 		$("#tct").innerHTML = getTotalConverted();
 		$("#averages").innerHTML = getAverages();
@@ -279,7 +277,9 @@ async function displayDashboard(info, $){
 }
 
 
-function displayGraph(getSelectedExchange, graphData, getGData){
+function displayGraph(getSelectedExchange, graphData, getGData, info){
+	const updatesData = info.updatesData;
+	const money_data = getGData("money");
 	var hChart = Highcharts.chart('graphContainer', {
 		chart: {
 			renderTo: 'graphContainer',
@@ -299,7 +299,7 @@ function displayGraph(getSelectedExchange, graphData, getGData){
             shared: true,
 			crosshairs: true,
 			pointFormat: "<span style=\"color:{point.color}\">●</span> {series.name}: <b>{point.y:,.2f}</b><br>",
-        },
+		},
 		yAxis: {
 	        title: {
 	            text: 'Amount'
@@ -307,7 +307,7 @@ function displayGraph(getSelectedExchange, graphData, getGData){
 			labels: {
             	format: '{value:.2f}'
         	}
-	    },
+		},
 		legend: {
 			enabled: false
 		},
@@ -345,13 +345,105 @@ function displayGraph(getSelectedExchange, graphData, getGData){
 		},{
 			color: '#393e44',
 			name: 'Money',
-			data: getGData("money")
+			data: money_data
 		}]
 	});
+
+	let max_money = 0;
+	for(let i = 0; i < money_data.length; i++){
+		if(money_data[i]>max_money){
+			max_money = i;
+		}
+	}
+
+	const dates = Object.keys(graphData).reverse();
+	const indices = {};
+	if(updatesData!=undefined){
+		for(let i = 0; i < updatesData.length; i++){
+			const update = updatesData[i];
+			const graph = graphData[update.date.text];
+
+			if(graph){
+				let index;
+				for(let j = 0; j < dates.length; j++){
+					if(dates[j]==update.date.text){
+						index = j;
+						break;
+					}
+				}
+
+				if(indices.hasOwnProperty(index)){
+					indices[index].labels[0].text += ", "+update.version;
+					continue;
+				}
+
+				indices[index] = {
+					labelOptions: {
+						verticalAlign: "top",
+						y: 15
+					},
+					labels: [{
+						point: {
+							x: index,
+							y: getGData("money")[index],
+							xAxis: 0,
+							yAxis: 0,
+						},
+						text: update.version,
+					}]
+				};
+			}else{
+				let index;
+				let whole_index;
+				let last_date;
+				const update_date = update.date.realDate.getTime();
+				for(let j = 0; j < dates.length; j++){
+					const purchase_date = graphData[dates[j]].realDate.getTime();
+
+					if(update_date<purchase_date){
+						whole_index = j;
+						if(!last_date) {
+							index = j;
+						}else{
+							index = (update_date - last_date) / (purchase_date - last_date) * (j - (j-1)) + (j-1);
+						}
+						break;
+					}
+
+					last_date = purchase_date;
+				}
+
+				if(indices.hasOwnProperty(index)){
+					indices[index].labels[0].text += ", "+update.version;
+					continue;
+				}
+
+				indices[index] = {
+					labelOptions: {
+						verticalAlign: "top",
+						y: 15
+					},
+					labels: [{
+						point: {
+							x: index,
+							y: getGData("money")[whole_index],
+							xAxis: 0,
+							yAxis: 0,
+						},
+						text: update.version,
+					}]
+				};
+			}
+		}
+
+		let indices_keys = Object.keys(indices);
+		for(let i = 0; i < indices_keys.length; i++){
+			hChart.addAnnotation(indices[indices_keys[i]]);
+		}
+	}
 }
 
 function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
-	console.log(getGData("money"))
 	var hChart = Highcharts.chart('monthlyContainer', {
 		chart: {
 			renderTo: 'monthlyContainer',

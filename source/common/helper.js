@@ -143,6 +143,14 @@ function getBuyerPagesAmount(body){
 	return parseInt(elText.substring(elText.lastIndexOf(' ')+1));
 }
 
+function getOption(name) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get([name], (result) => {
+      resolve(result[name]);
+    })
+  })
+}
+
 // Ensure all pages are fetched
 function ensure(resource, retries, page, callback){
 	ajaxGetRequest(resource + "?page=" + page, callback, () => {

@@ -49,7 +49,7 @@ It will be created in the `/builds` directory
 
 + [manifest.json](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/manifest.json) Version/Icons/Scripts
 + [source/common/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/common) Helpers used in multiple cases (money.js, helper.js)
-+ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/libs) External libraries (highcharts.js, exporting.js (Part of highcharts))
++ [/libs/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/libs) External libraries (highcharts.js, exporting.js, annotations.js (Part of highcharts))
 + [/resource/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/resource) Stuff used in resource buyers page (buyers.js, dashboard.js)
 + [/author/](https://github.com/rodel77/SpigotSellsViewer-ChromeExtension/blob/master/source/author) Extract buyers from all your resources, used to display it in https://www.spigotmc.org/resources/authors/YOUR-SPIGOT-ID/
 
