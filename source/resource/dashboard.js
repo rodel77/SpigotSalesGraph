@@ -53,7 +53,11 @@ async function displayDashboard(info, $){
 
 						var ondate = new Date(on);
 						var keyName = months[ondate.getMonth()]+" "+ondate.getDate()+", "+ondate.getFullYear();
-						graphData[keyName] = {amount: 0, money: 0};
+						graphData[keyName] = {
+							amount: 0,
+							money: 0,
+							realDate: ondate,
+						};
 						on -= 86400000;
 
 						}
@@ -64,11 +68,14 @@ async function displayDashboard(info, $){
 
 
 				if(graphData[simpleDate]==undefined){
-					graphData[simpleDate]={amount: 1, money: finalPrice};
-					graphData[simpleDate].realDate = buyer.realDate;
+					graphData[simpleDate] = {
+						amount: 1,
+						money: finalPrice,
+						realDate: buyer.realDate,
+					};
 				}else{
-					graphData[simpleDate].amount+=1;
-					graphData[simpleDate].money=graphData[simpleDate].money+finalPrice;
+					graphData[simpleDate].amount += 1;
+					graphData[simpleDate].money = graphData[simpleDate].money+finalPrice;
 				}
 			}
       	};

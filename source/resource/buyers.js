@@ -8,7 +8,7 @@ async function getUpdates(){
 
 			let update = document.querySelector(".resourceTabHistory a");
 	
-			fetch(update, {
+			fetch(update.href, {
 				'credentials': 'same-origin'
 			}).then(function(response){
 				return response.text();
