@@ -254,15 +254,23 @@ async function displayDashboard(info, $){
     displayGraph(getSelectedExchange, graphData, getGData, info);
 	displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
 
+	chrome.storage.onChanged.addListener((changes)=>{
+		let show_annotations = changes.showUpdateAnnotations;
+		if(show_annotations!=undefined){
+			displayGraph(getSelectedExchange, graphData, getGData, info);
+		}
+	})
+
     $("#exchangeTotal").addEventListener('change', function(){
         graphData = {};
 		monthlyGraphData = {};
-        calculateGraph();
-        displayGraph(getSelectedExchange, graphData, getGData, info);
-		displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
-		$("#tct").innerHTML = getTotalConverted();
-		$("#averages").innerHTML = getAverages();
-        $("#csvbtn").innerHTML = getDownloadCSV();
+		calculateGraph().then(function(){
+			displayGraph(getSelectedExchange, graphData, getGData, info);
+			displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
+			$("#tct").innerHTML = getTotalConverted();
+			$("#averages").innerHTML = getAverages();
+			$("#csvbtn").innerHTML = getDownloadCSV();
+		})
     });
 
     $(".buyersTabGraph a").addEventListener("click", function(){
@@ -356,98 +364,99 @@ function displayGraph(getSelectedExchange, graphData, getGData, info){
 		}]
 	});
 
-	let max_money = 0;
-	for(let i = 0; i < money_data.length; i++){
-		if(money_data[i]>max_money){
-			max_money = i;
-		}
-	}
-
-	const dates = Object.keys(graphData).reverse();
-	const indices = {};
-	if(updatesData!=undefined){
-		for(let i = 0; i < updatesData.length; i++){
-			const update = updatesData[i];
-			const graph = graphData[update.date.text];
-
-			if(graph){
-				let index;
-				for(let j = 0; j < dates.length; j++){
-					if(dates[j]==update.date.text){
-						index = j;
-						break;
-					}
-				}
-
-				if(indices.hasOwnProperty(index)){
-					indices[index].labels[0].text += ", "+update.version;
-					continue;
-				}
-
-				indices[index] = {
-					labelOptions: {
-						verticalAlign: "top",
-						y: 15
-					},
-					labels: [{
-						point: {
-							x: index,
-							y: getGData("money")[index],
-							xAxis: 0,
-							yAxis: 0,
-						},
-						text: update.version,
-					}]
-				};
-			}else{
-				let index;
-				let whole_index;
-				let last_date;
-				const update_date = update.date.realDate.getTime();
-				for(let j = 0; j < dates.length; j++){
-					const purchase_date = graphData[dates[j]].realDate.getTime();
-
-					if(update_date<purchase_date){
-						whole_index = j;
-						if(!last_date) {
+	getOption("showUpdateAnnotations").then((visible) => {
+		return visible==true;
+	}).then((visible)=>{
+		if(!visible) return;
+		// console.log("Visible", visible);
+		const dates = Object.keys(graphData).reverse();
+		const indices = {};
+		if(updatesData!=undefined){
+			for(let i = 0; i < updatesData.length; i++){
+				const update = updatesData[i];
+				const graph = graphData[update.date.text];
+	
+				if(graph){
+					let index;
+					for(let j = 0; j < dates.length; j++){
+						if(dates[j]==update.date.text){
 							index = j;
-						}else{
-							index = (update_date - last_date) / (purchase_date - last_date) * (j - (j-1)) + (j-1);
+							break;
 						}
-						break;
 					}
-
-					last_date = purchase_date;
-				}
-
-				if(indices.hasOwnProperty(index)){
-					indices[index].labels[0].text += ", "+update.version;
-					continue;
-				}
-
-				indices[index] = {
-					labelOptions: {
-						verticalAlign: "top",
-						y: 15
-					},
-					labels: [{
-						point: {
-							x: index,
-							y: getGData("money")[whole_index],
-							xAxis: 0,
-							yAxis: 0,
+	
+					if(indices.hasOwnProperty(index)){
+						indices[index].labels[0].text += ", "+update.version;
+						continue;
+					}
+	
+					indices[index] = {
+						labelOptions: {
+							verticalAlign: "top",
+							y: 15
 						},
-						text: update.version,
-					}]
-				};
+						labels: [{
+							point: {
+								x: index,
+								y: Math.max(2, getGData("money")[index]),
+								xAxis: 0,
+								yAxis: 0,
+							},
+							text: update.version,
+						}],
+						visible: visible,
+					};
+				}else{
+					let index;
+					let whole_index;
+					let lastDate;
+					const updateDate = update.date.realDate.getTime();
+					for(let j = 0; j < dates.length; j++){
+						const purchaseDate = graphData[dates[j]].realDate.getTime();
+	
+						if(updateDate<purchaseDate){
+							whole_index = j;
+							if(!lastDate) {
+								index = j;
+							}else{
+								index = (updateDate - lastDate) / (purchaseDate - lastDate) * (j - (j-1)) + (j-1);
+							}
+							break;
+						}
+	
+						lastDate = purchaseDate;
+					}
+	
+					if(indices.hasOwnProperty(index)){
+						indices[index].labels[0].text += ", "+update.version;
+						continue;
+					}
+	
+					indices[index] = {
+						labelOptions: {
+							verticalAlign: "top",
+							y: 15
+						},
+						labels: [{
+							point: {
+								x: index,
+								y: Math.max(2, getGData("money")[whole_index]),
+								xAxis: 0,
+								yAxis: 0,
+							},
+							text: update.version,
+						}],
+						visible: visible,
+					};
+				}
+			}
+	
+			let indicesKeys = Object.keys(indices);
+			for(let i = 0; i < indicesKeys.length; i++){
+				hChart.addAnnotation(indices[indicesKeys[i]]);
 			}
 		}
-
-		let indices_keys = Object.keys(indices);
-		for(let i = 0; i < indices_keys.length; i++){
-			hChart.addAnnotation(indices[indices_keys[i]]);
-		}
-	}
+	});
 }
 
 function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
@@ -520,7 +529,6 @@ function displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getGData){
 		}]
 	});
 }
-
 
 function getOption(name) {
   return new Promise((resolve, reject) => {
