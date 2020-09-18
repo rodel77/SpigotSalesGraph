@@ -1,39 +1,32 @@
 async function getUpdates(){
 	return new Promise(done => {
-		getOption("showUpdateAnnotations").then(function(enabled){
-			if(!enabled){
-				done();
-				return;
+		let update = document.querySelector(".resourceTabHistory a");
+	
+		fetch(update.href, {
+			'credentials': 'same-origin'
+		}).then(function(response){
+			return response.text();
+		}).then(function(response){
+			const parser = new DOMParser();
+			return parser.parseFromString(response, "text/html");
+		}).then(function(body){
+			const elements = body.querySelectorAll(".resourceHistory .dataRow");
+			let updates = [];
+
+			for(let i = 0; i < elements.length; i++){
+				const element = elements[i];
+				if(element.children[0].tagName!="TH"){
+					const date = buildDate(element.querySelector(".releaseDate .DateTime"));
+					date.text = element.querySelector(".releaseDate .DateTime").innerHTML;
+					updates.push({
+						date: date,
+						version: element.querySelector(".version").innerHTML
+					});
+				}
 			}
 
-			let update = document.querySelector(".resourceTabHistory a");
-	
-			fetch(update.href, {
-				'credentials': 'same-origin'
-			}).then(function(response){
-				return response.text();
-			}).then(function(response){
-				const parser = new DOMParser();
-				return parser.parseFromString(response, "text/html");
-			}).then(function(body){
-				const elements = body.querySelectorAll(".resourceHistory .dataRow");
-				let updates = [];
-
-				for(let i = 0; i < elements.length; i++){
-					const element = elements[i];
-					if(element.children[0].tagName!="TH"){
-						const date = buildDate(element.querySelector(".releaseDate .DateTime"));
-						date.text = element.querySelector(".releaseDate .DateTime").innerHTML;
-						updates.push({
-							date: date,
-							version: element.querySelector(".version").innerHTML
-						});
-					}
-				}
-
-				done(updates);
-			});
-		})
+			done(updates);
+		});
 	});
 }
 
