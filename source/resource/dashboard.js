@@ -257,12 +257,13 @@ async function displayDashboard(info, $){
     $("#exchangeTotal").addEventListener('change', function(){
         graphData = {};
 		monthlyGraphData = {};
-        calculateGraph();
-        displayGraph(getSelectedExchange, graphData, getGData, info);
-		displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
-		$("#tct").innerHTML = getTotalConverted();
-		$("#averages").innerHTML = getAverages();
-        $("#csvbtn").innerHTML = getDownloadCSV();
+		calculateGraph().then(function(){
+			displayGraph(getSelectedExchange, graphData, getGData, info);
+			displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
+			$("#tct").innerHTML = getTotalConverted();
+			$("#averages").innerHTML = getAverages();
+			$("#csvbtn").innerHTML = getDownloadCSV();
+		})
     });
 
     $(".buyersTabGraph a").addEventListener("click", function(){
