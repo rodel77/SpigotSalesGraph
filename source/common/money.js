@@ -19,6 +19,7 @@ function ready(apiRates){
     rates = apiRates!=undefined ? apiRates : rates;
 
     getOption("defaultCurrency").then((defaultCurrency) => {
+        DEFAULT_CURRENCY = defaultCurrency;
         onReady(convert, getExchangesInOptions(defaultCurrency), function(selector){
             return document.querySelector(selector);
         });

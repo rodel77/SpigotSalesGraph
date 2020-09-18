@@ -9,7 +9,6 @@ var saleData;
 
 if(premium){
     costInput = document.querySelector("#ctrl_bdpaygate_price");
-    //Cuz JS!
     costInput.addEventListener("change", compute);
     costInput.addEventListener("keydown", compute);
     costInput.addEventListener("keyup", compute);
@@ -17,7 +16,6 @@ if(premium){
     
     console.debug("[SpigotSales] Current resource price:", costInput.value);
     var paymentSection = document.querySelectorAll(".mainContent fieldset")[1];
-    // console.log(paymentSection.children.pop())
     paymentSection.insertBefore(createSaleElement(), paymentSection.children[1]);
 
     compute();
@@ -66,7 +64,6 @@ function createSaleElement(){
 }
 
 function compute(){
-    // Source: http://www.webmath.com/sale.html
     var cp = parseInt(costInput.value);
     var sp = parseInt(salePercent.value);
     notice.innerText = "";

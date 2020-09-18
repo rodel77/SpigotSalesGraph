@@ -174,7 +174,7 @@ async function displayDashboard(info, $){
     }
 
     function getSelectedExchange(){
-        return $("#exchangeTotal")==undefined ? "USD" : $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
+        return $("#exchangeTotal")==undefined ? (DEFAULT_CURRENCY!=undefined ? DEFAULT_CURRENCY : "USD") : $("#exchangeTotal").options[$("#exchangeTotal").selectedIndex].value;
     }
 
     $(".innerContent").innerHTML = `
@@ -260,17 +260,21 @@ async function displayDashboard(info, $){
 			displayGraph(getSelectedExchange, graphData, getGData, info);
 		}
 	})
-
+	
     $("#exchangeTotal").addEventListener('change', function(){
-        graphData = {};
-		monthlyGraphData = {};
-		calculateGraph().then(function(){
-			displayGraph(getSelectedExchange, graphData, getGData, info);
-			displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
-			$("#tct").innerHTML = getTotalConverted();
-			$("#averages").innerHTML = getAverages();
-			$("#csvbtn").innerHTML = getDownloadCSV();
-		})
+		chrome.storage.sync.set({
+			defaultCurrency: getSelectedExchange(),
+		}, () => {
+			graphData = {};
+			monthlyGraphData = {};
+			calculateGraph().then(function(){
+				displayGraph(getSelectedExchange, graphData, getGData, info);
+				displayMonthlyGraph(getSelectedExchange, monthlyGraphData, getMonthlyGData);
+				$("#tct").innerHTML = getTotalConverted();
+				$("#averages").innerHTML = getAverages();
+				$("#csvbtn").innerHTML = getDownloadCSV();
+			})
+		});
     });
 
     $(".buyersTabGraph a").addEventListener("click", function(){
@@ -294,7 +298,7 @@ async function displayDashboard(info, $){
 
 function displayGraph(getSelectedExchange, graphData, getGData, info){
 	const updatesData = info.updatesData;
-	const money_data = getGData("money");
+	const moneyData = getGData("money");
 	var hChart = Highcharts.chart('graphContainer', {
 		chart: {
 			renderTo: 'graphContainer',
@@ -360,7 +364,7 @@ function displayGraph(getSelectedExchange, graphData, getGData, info){
 		},{
 			color: '#393e44',
 			name: 'Money',
-			data: money_data
+			data: moneyData
 		}]
 	});
 
@@ -368,7 +372,14 @@ function displayGraph(getSelectedExchange, graphData, getGData, info){
 		return visible==true;
 	}).then((visible)=>{
 		if(!visible) return;
-		// console.log("Visible", visible);
+
+		let maxMoney = 0;
+		for(let i = 0; i < moneyData.length; i++){
+			if(moneyData[i]>maxMoney){
+				maxMoney = i;
+			}
+		}
+
 		const dates = Object.keys(graphData).reverse();
 		const indices = {};
 		if(updatesData!=undefined){
@@ -398,7 +409,7 @@ function displayGraph(getSelectedExchange, graphData, getGData, info){
 						labels: [{
 							point: {
 								x: index,
-								y: Math.max(2, getGData("money")[index]),
+								y: Math.max(maxMoney*.1, getGData("money")[index]),
 								xAxis: 0,
 								yAxis: 0,
 							},
@@ -440,7 +451,7 @@ function displayGraph(getSelectedExchange, graphData, getGData, info){
 						labels: [{
 							point: {
 								x: index,
-								y: Math.max(2, getGData("money")[whole_index]),
+								y: Math.max(maxMoney*.1, getGData("money")[whole_index]),
 								xAxis: 0,
 								yAxis: 0,
 							},

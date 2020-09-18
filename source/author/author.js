@@ -601,27 +601,8 @@ function onReady(convert, options, $){
         return result;
     }
 
-    // function getTotalInUSD(resource){
-    //     var totalUSD = 0;
-    //     for(var ex in resource.exchanges){
-    //         var usd = convert(resource.exchanges[ex], ex, getSelectedExchange());
-    //         totalUSD+=usd;
-    //     }
-
-    //     return totalUSD;
-    //     // total+=totalUSD;
-    // }
-
     function getTotalInExchange(){
         let totalExchange = 0;
-
-            // var totalUSD = 0;
-            // for(var ex in data.exchanges){
-            //     var usd = convert(data.exchanges[ex], ex, getSelectedExchange());
-            //     totalUSD+=usd;
-            // }
-
-            // total+=totalUSD;
 
         resourcesData.forEach((resource)=>{
             if(resource.isEnabled()){
