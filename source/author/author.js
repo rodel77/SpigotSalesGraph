@@ -76,10 +76,12 @@ function onReady(convert, options, $){
         var resources = page.querySelectorAll(".resourceListItem");
         for(var i = 0; i < resources.length; i++){
             var resource = resources[i];
-            var premium = resource.querySelector(".cost")!=undefined;
-            if(premium){
-                let id = resource.id.substr(resource.id.lastIndexOf("-")+1);
-                resourcesD.push(id);
+            if(!resource.classList.contains("moderated")){
+                var premium = resource.querySelector(".cost")!=undefined;
+                if(premium){
+                    let id = resource.id.substr(resource.id.lastIndexOf("-")+1);
+                    resourcesD.push(id);
+                }
             }
         }
     }
