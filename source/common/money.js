@@ -1,4 +1,4 @@
-fetch("https://api.exchangeratesapi.io/latest?base=USD").then(function(e){
+fetch("https://api.exchangerate.host/latest?base=USD").then(function(e){
     return e.json();
 }).then(function(e){
     console.debug("[Request] Exchange request successfully");
