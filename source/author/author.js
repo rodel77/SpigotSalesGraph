@@ -90,6 +90,8 @@ function onReady(convert, options, $){
     var monthlyResources = {};
     var graphData = {};
     var disabledResources = {};
+    var totalPages = 0;
+    var pagesQueried = 0;
 
     function queryResource(id){
         const resource = "https://www.spigotmc.org/resources/"+id+"/buyers";
@@ -103,8 +105,11 @@ function onReady(convert, options, $){
 			const buyerPagesAmount = getBuyerPagesAmount(html);
             var fetchedBuyerPages = 1;
 
+            totalPages += buyerPagesAmount;
+
 			if(buyerPagesAmount == 1){
 				done(id, html, getBuyersData(html.querySelectorAll(".memberListItem")));
+                pagesQueried++;
 				return;
 			}
 
@@ -124,6 +129,7 @@ function onReady(convert, options, $){
 					// update state
 					{
                         fetchedBuyerPages++;
+                        pagesQueried++;
 
 						if(fetchedBuyerPages == buyerPagesAmount){
 							buyerElements.sort((a, b) => {
@@ -134,7 +140,9 @@ function onReady(convert, options, $){
 							});
 							done(id, html, getBuyersData(buyerElements));
 						}
-					}
+
+                        $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length} (${pagesQueried}/${totalPages})`;
+                    }
 				});
 			}
         });
@@ -152,7 +160,7 @@ function onReady(convert, options, $){
 
         loadIndex++;
         console.debug("[Author] Resource", loadIndex, "loaded!")
-        $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
+        // $("#loadingState").innerHTML = `Loading ${loadIndex}/${resourcesD.length}`;
         if(loadIndex==resourcesD.length){
            $("#loadingState").remove();
            requestEnd();
