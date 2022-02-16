@@ -48,17 +48,33 @@ function betterNumber(n) {
     return first+(decimal==undefined ? "" : "."+decimal);
 }
 
+var connection = false;
 function ajaxGetRequest(url, callbackSuccess, callbackError = null){
+	// If we are already doing a connection just wait a little bit and try again
+	if (connection) {
+		setTimeout(()=>{
+			callbackError();
+		}, Math.floor(Math.random() * 5000) + 1000);
+		return;
+	}
+	connection = true;
+	console.log("[Helper] Connecting to " + url);
 	var xhttp = new XMLHttpRequest();
 	
 	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
+		if (this.readyState == 4){
+			var timeout = 750; // Wait some time before the next connection
+			if(this.status == 429){
+				console.log("[Helper] Oops, we upset Spigot, lets wait :(");
+				timeout = 2500; // Wait even more time if we got a 429
+			}
+			setTimeout(()=>{
+				connection = false;
+			}, timeout);
 			if(this.status == 200){
 				callbackSuccess(this.responseText);
-			
-			}else{
-				if(callbackError != null)
-					callbackError();
+			}else if(callbackError != null){
+				callbackError();
 			}
 		}
 	};
@@ -154,10 +170,7 @@ function getOption(name) {
 // Ensure all pages are fetched
 function ensure(resource, retries, page, callback){
 	ajaxGetRequest(resource + "?page=" + page, callback, () => {
-		console.error("[Buyers]", "An error occured while fetching content of page " + page + " retries: " + retries);
 		retries+=1;
-		setTimeout(()=>{
-			ensure(resource, retries, page, callback)
-		}, retries * 1000);
+        ensure(resource, retries, page, callback)
 	});
 }
