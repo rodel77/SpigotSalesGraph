@@ -1,5 +1,5 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "Spigot Sales Graph",
 	"description": "See your montly/total revenue in your premium spigot resources",
 	"version": "1.7.1",
@@ -10,13 +10,16 @@
 	},
 	
 	"permissions": [
-		"https://www.spigotmc.org/*",
-    		"storage"
+		"storage"
+	],
+	
+	"host_permissions": [
+		"https://www.spigotmc.org/*"
 	],
 
-	"browser_action": {
-      		"default_popup": "source/popup/popup.html"
-    	},
+	"action": {
+		  "default_popup": "source/popup/popup.html"
+	},
 	
 	"content_scripts": [
 		{
