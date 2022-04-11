@@ -63,10 +63,10 @@ function ajaxGetRequest(url, callbackSuccess, callbackError = null){
 	
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4){
-			var timeout = 750; // Wait some time before the next connection
+			var timeout = 1000; // Wait some time before the next connection
 			if(this.status == 429){
 				console.log("[Helper] Oops, we upset Spigot, lets wait :(");
-				timeout = 2500; // Wait even more time if we got a 429
+				timeout = 3000; // Wait even more time if we got a 429
 			}
 			setTimeout(()=>{
 				connection = false;
