@@ -14,6 +14,8 @@ const monthEnum = [
     "November",
     "December"];
 
+var queue = [];
+
 // Mini jquery
 function $$(selector){
     return document.querySelector(selector);
@@ -153,11 +155,27 @@ function getOption(name) {
 
 // Ensure all pages are fetched
 function ensure(resource, retries, page, callback){
-	ajaxGetRequest(resource + "?page=" + page, callback, () => {
-		console.error("[Buyers]", "An error occured while fetching content of page " + page + " retries: " + retries);
-		retries+=1;
-		setTimeout(()=>{
-			ensure(resource, retries, page, callback)
-		}, retries * 1000);
+    var run = queue.length == 0;
+    queue.push(() => runLater(resource, retries, page, callback));
+    if(run){
+        queue[0]();
+    }
+}
+
+function runLater(resource, retries, page, callback){
+    ajaxGetRequest(resource + "?page=" + page, (value) =>{
+        callback(value);
+        queue.shift();
+        console.log("[Success]", "Fetching content of page " + page + " retries: " + retries);
+        if(queue.length != 0){
+            console.log(queue);
+            queue[0]();
+        }
+    }, () => {
+        console.error("[Buyers]", "An error occured while fetching content of page " + page + " retries: " + retries);
+        retries+=1;
+        setTimeout(()=>{
+            runLater(resource, retries, page, callback)
+        }, retries * 1000);
 	});
 }
