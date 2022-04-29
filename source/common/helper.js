@@ -14,8 +14,6 @@ const monthEnum = [
     "November",
     "December"];
 
-var queue = [];
-
 // Mini jquery
 function $$(selector){
     return document.querySelector(selector);
@@ -50,17 +48,33 @@ function betterNumber(n) {
     return first+(decimal==undefined ? "" : "."+decimal);
 }
 
+var connection = false;
 function ajaxGetRequest(url, callbackSuccess, callbackError = null){
+	// If we are already doing a connection just wait a little bit and try again
+	if (connection) {
+		setTimeout(()=>{
+			callbackError();
+		}, Math.floor(Math.random() * 5000) + 1000);
+		return;
+	}
+	connection = true;
+	console.log("[Helper] Connecting to " + url);
 	var xhttp = new XMLHttpRequest();
 	
 	xhttp.onreadystatechange = function() {
-		if (this.readyState == 4) {
+		if (this.readyState == 4){
+			var timeout = 750; // Wait some time before the next connection
+			if(this.status == 429){
+				console.log("[Helper] Oops, we upset Spigot, lets wait :(");
+				timeout = 2500; // Wait even more time if we got a 429
+			}
+			setTimeout(()=>{
+				connection = false;
+			}, timeout);
 			if(this.status == 200){
 				callbackSuccess(this.responseText);
-			
-			}else{
-				if(callbackError != null)
-					callbackError();
+			}else if(callbackError != null){
+				callbackError();
 			}
 		}
 	};
@@ -155,27 +169,8 @@ function getOption(name) {
 
 // Ensure all pages are fetched
 function ensure(resource, retries, page, callback){
-    var run = queue.length == 0;
-    queue.push(() => runLater(resource, retries, page, callback));
-    if(run){
-        queue[0]();
-    }
-}
-
-function runLater(resource, retries, page, callback){
-    ajaxGetRequest(resource + "?page=" + page, (value) =>{
-        callback(value);
-        queue.shift();
-        console.log("[Success]", "Fetching content of page " + page + " retries: " + retries);
-        if(queue.length != 0){
-            console.log(queue);
-            queue[0]();
-        }
-    }, () => {
-        console.error("[Buyers]", "An error occured while fetching content of page " + page + " retries: " + retries);
-        retries+=1;
-        setTimeout(()=>{
-            runLater(resource, retries, page, callback)
-        }, retries * 1000);
+	ajaxGetRequest(resource + "?page=" + page, callback, () => {
+		retries+=1;
+        ensure(resource, retries, page, callback)
 	});
 }
