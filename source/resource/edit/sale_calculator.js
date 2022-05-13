@@ -64,8 +64,8 @@ function createSaleElement(){
 }
 
 function compute(){
-    var cp = parseInt(costInput.value);
-    var sp = parseInt(salePercent.value);
+    var cp = parseFloat(costInput.value);
+    var sp = parseFloat(salePercent.value);
     notice.innerText = "";
     if(isNaN(sp) || isNaN(cp)){
         notice.style = "color:red;"
